@@ -3,19 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';">
 <title>MLA RAAD Program — Eligibility Checker</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Mulish:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --gd:#1a4731;--gm:#2d6a4f;--gl:#52b788;--gp:#d8f3dc;--gf:#f0faf3;
-  --tx:#1c2b22;--tl:#4a6358;--wh:#ffffff;--bd:#c3dfc9;--er:#c0392b;
-}
+:root{--gd:#1a4731;--gm:#2d6a4f;--gl:#52b788;--gp:#d8f3dc;--gf:#f0faf3;--tx:#1c2b22;--tl:#4a6358;--wh:#fff;--bd:#c3dfc9;--er:#c0392b;--amb:#b8860b;--ambbg:#fff8e1;}
 body{font-family:'Mulish',sans-serif;background:#e8f5ec;color:var(--tx);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:32px 16px;}
 .wrap{width:100%;max-width:660px;}
 .card{background:var(--wh);border-radius:24px;overflow:hidden;box-shadow:0 2px 4px rgba(26,71,49,.05),0 24px 80px rgba(26,71,49,.14);}
-.hdr{background:var(--gd);padding:36px 44px 0;position:relative;}
+.hdr{background:var(--gd);padding:36px 44px 0;}
 .badge{display:inline-flex;align-items:center;gap:6px;background:rgba(82,183,136,.18);border:1px solid rgba(82,183,136,.3);color:var(--gl);font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:5px 14px;border-radius:20px;margin-bottom:16px;}
 .badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--gl);}
 .hdr h1{font-family:'Playfair Display',serif;font-size:28px;line-height:1.2;color:#fff;margin-bottom:10px;}
@@ -32,40 +28,46 @@ body{font-family:'Mulish',sans-serif;background:#e8f5ec;color:var(--tx);min-heig
 .qtxt{font-family:'Playfair Display',serif;font-size:22px;line-height:1.35;color:var(--tx);margin-bottom:7px;}
 .qhint{font-size:13px;color:var(--tl);line-height:1.55;margin-bottom:22px;}
 .opts{display:flex;flex-direction:column;gap:10px;}
-.opt{
-  display:flex;align-items:center;gap:14px;
-  padding:14px 18px;border:1.5px solid var(--bd);border-radius:12px;
-  cursor:pointer;background:var(--wh);font-size:14px;font-weight:500;
-  color:var(--tx);text-align:left;width:100%;
-  transition:border-color .2s,background .2s,transform .2s;
-}
+.opt{display:flex;align-items:center;gap:14px;padding:14px 18px;border:1.5px solid var(--bd);border-radius:12px;cursor:pointer;background:var(--wh);font-size:14px;font-weight:500;color:var(--tx);text-align:left;width:100%;transition:border-color .2s,background .2s,transform .15s;}
 .opt:hover{border-color:var(--gl);background:var(--gf);transform:translateX(3px);}
 .opt.sel{border-color:var(--gm);background:var(--gp);color:var(--gd);}
 .dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--bd);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;pointer-events:none;}
 .opt.sel .dot{border-color:var(--gm);background:var(--gm);}
 .opt.sel .dot::after{content:'';width:6px;height:6px;border-radius:50%;background:#fff;}
+.multi-opts{display:flex;flex-direction:column;gap:10px;}
+.mhint{font-size:12px;color:var(--tl);font-style:italic;margin-bottom:14px;}
+.mopt{display:flex;align-items:center;gap:14px;padding:14px 18px;border:1.5px solid var(--bd);border-radius:12px;cursor:pointer;background:var(--wh);font-size:14px;font-weight:500;color:var(--tx);text-align:left;width:100%;transition:border-color .2s,background .2s;}
+.mopt:hover{border-color:var(--gl);background:var(--gf);}
+.mopt.sel{border-color:var(--gm);background:var(--gp);color:var(--gd);}
+.mbox{width:18px;height:18px;border-radius:4px;border:2px solid var(--bd);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;transition:all .2s;pointer-events:none;}
+.mopt.sel .mbox{border-color:var(--gm);background:var(--gm);color:#fff;}
 .nav{display:flex;justify-content:space-between;align-items:center;margin-top:28px;gap:12px;}
 .btn-back{background:none;border:1.5px solid var(--bd);color:var(--tl);padding:11px 20px;border-radius:10px;font-family:'Mulish',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;}
 .btn-back:hover{border-color:var(--gl);color:var(--gd);}
 .btn-next{background:var(--gd);color:#fff;border:none;padding:12px 30px;border-radius:10px;font-family:'Mulish',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;margin-left:auto;}
 .btn-next:hover:not(:disabled){background:var(--gm);transform:translateY(-1px);box-shadow:0 4px 14px rgba(26,71,49,.25);}
 .btn-next:disabled{opacity:.3;cursor:not-allowed;}
-/* result */
 .rblock{display:none;}
 .rblock.active{display:block;animation:fu .4s ease both;}
-.rhdr{text-align:center;margin-bottom:28px;}
+.rhdr{text-align:center;margin-bottom:24px;}
 .rico{width:70px;height:70px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 14px;}
-.rico.hi{background:var(--gp)}.rico.md{background:#fff8e1}.rico.lo{background:#fdecea}
+.rico.hi{background:var(--gp)}.rico.md{background:var(--ambbg)}.rico.lo{background:#fdecea}
 .rlbl{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;}
-.rlbl.hi{color:var(--gm)}.rlbl.md{color:#b8860b}.rlbl.lo{color:var(--er)}
+.rlbl.hi{color:var(--gm)}.rlbl.md{color:var(--amb)}.rlbl.lo{color:var(--er)}
 .rtitle{font-family:'Playfair Display',serif;font-size:24px;line-height:1.3;color:var(--tx);margin-bottom:10px;}
-.rbody{font-size:14px;color:var(--tl);line-height:1.7;}
-/* eoi form */
+.rbody{font-size:14px;color:var(--tl);line-height:1.7;margin-bottom:14px;}
+.highlight-box{background:var(--ambbg);border:1.5px solid #e6cc80;border-radius:12px;padding:14px 18px;margin-top:14px;text-align:left;}
+.highlight-box p{font-size:13px;color:#7a5c00;line-height:1.6;}
+.highlight-box strong{color:#5a3e00;}
+.ptags{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px;}
+.ptag{background:var(--gp);border:1px solid var(--bd);color:var(--gd);font-size:12px;font-weight:600;padding:5px 12px;border-radius:20px;}
+.prelim-note{background:var(--gf);border:1px solid var(--bd);border-radius:10px;padding:12px 16px;margin-top:16px;font-size:12px;color:var(--tl);line-height:1.6;text-align:left;}
+.prelim-note strong{color:var(--gd);}
 .eoi-wrap{background:var(--gf);border:1.5px solid var(--bd);border-radius:16px;padding:26px 30px;margin-top:26px;}
 .eoi-wrap h3{font-family:'Playfair Display',serif;font-size:19px;color:var(--gd);margin-bottom:6px;}
 .eoi-sub{font-size:13px;color:var(--tl);margin-bottom:22px;line-height:1.5;}
-.sec-title{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--gl);margin:18px 0 10px;padding-top:6px;border-top:1px solid var(--bd);}
-.sec-title:first-of-type{border-top:none;margin-top:0;}
+.stitle{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--gl);margin:18px 0 10px;padding-top:6px;border-top:1px solid var(--bd);}
+.stitle:first-of-type{border-top:none;margin-top:0;}
 .fgrid{display:grid;grid-template-columns:1fr 1fr;gap:13px;}
 .fg{display:flex;flex-direction:column;gap:4px;}
 .fg.s2{grid-column:span 2;}
@@ -78,9 +80,6 @@ body{font-family:'Mulish',sans-serif;background:#e8f5ec;color:var(--tx);min-heig
 .emsg{font-size:11px;color:var(--er);display:none;}
 .fg.err .emsg{display:block;}
 .wc{font-size:11px;color:var(--tl);text-align:right;margin-top:2px;}
-.radio-g{display:flex;flex-direction:column;gap:7px;margin-top:2px;}
-.ri{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;cursor:pointer;}
-.ri input{accent-color:var(--gm);width:15px;height:15px;}
 .terms{display:flex;align-items:flex-start;gap:9px;font-size:12px;color:var(--tl);line-height:1.5;margin-bottom:14px;cursor:pointer;}
 .terms input{accent-color:var(--gm);margin-top:2px;flex-shrink:0;}
 .btn-sub{width:100%;background:var(--gd);color:#fff;border:none;padding:15px;border-radius:12px;font-family:'Mulish',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;}
@@ -88,13 +87,11 @@ body{font-family:'Mulish',sans-serif;background:#e8f5ec;color:var(--tx);min-heig
 .btn-sub:disabled{opacity:.4;cursor:not-allowed;}
 .spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;display:none;}
 @keyframes sp{to{transform:rotate(360deg)}}
-/* success */
 .succ{display:none;text-align:center;animation:fu .4s ease both;}
 .succ.active{display:block;}
 .succ-ico{font-size:46px;margin-bottom:14px;}
 .succ h3{font-family:'Playfair Display',serif;font-size:22px;color:var(--gd);margin-bottom:10px;}
 .succ p{font-size:14px;color:var(--tl);line-height:1.7;margin-bottom:18px;}
-/* contact card */
 .cc{background:#fff;border:1.5px solid var(--bd);border-radius:14px;padding:18px 22px;margin-top:18px;text-align:left;}
 .cc-lbl{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gl);margin-bottom:9px;}
 .cc-name{font-weight:700;font-size:15px;color:var(--tx);margin-bottom:2px;}
@@ -102,125 +99,153 @@ body{font-family:'Mulish',sans-serif;background:#e8f5ec;color:var(--tx);min-heig
 .cc-links{display:flex;flex-wrap:wrap;gap:8px;}
 .cc-link{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--gd);text-decoration:none;background:var(--gf);border:1px solid var(--bd);padding:6px 11px;border-radius:7px;transition:all .15s;}
 .cc-link:hover{border-color:var(--gl);background:var(--gp);}
-.not-elig{display:flex;flex-direction:column;gap:10px;margin-top:22px;}
-.or-div{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--tl);}
+.or-div{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--tl);margin:12px 0;}
 .or-div::before,.or-div::after{content:'';flex:1;height:1px;background:var(--bd);}
 .btn-mla{display:block;text-align:center;text-decoration:none;background:#fff;color:var(--gd);border:1.5px solid var(--bd);border-radius:12px;padding:13px 24px;font-family:'Mulish',sans-serif;font-size:14px;font-weight:600;transition:all .2s;}
 .btn-mla:hover{border-color:var(--gl);background:var(--gf);}
-.restart{background:none;border:none;color:var(--tl);font-family:'Mulish',sans-serif;font-size:13px;cursor:pointer;text-decoration:underline;margin:14px auto 0;display:block;transition:color .2s;}
+.talk-wrap{margin-top:22px;}
+.restart{background:none;border:none;color:var(--tl);font-family:'Mulish',sans-serif;font-size:13px;cursor:pointer;text-decoration:underline;margin:14px auto 0;display:block;}
 .restart:hover{color:var(--gd);}
 .foot{padding:14px 44px 20px;border-top:1px solid var(--gf);text-align:center;font-size:11px;color:#aabdb3;}
 @media(max-width:500px){
   .hdr,.body,.prog-wrap,.foot{padding-left:20px;padding-right:20px;}
-  .hdr{padding-top:26px;}
-  .hdr h1{font-size:22px;}
-  .qtxt{font-size:18px;}
-  .fgrid{grid-template-columns:1fr;}
-  .fg.s2{grid-column:span 1;}
+  .hdr{padding-top:26px;}.hdr h1{font-size:22px;}.qtxt{font-size:18px;}
+  .fgrid{grid-template-columns:1fr;}.fg.s2{grid-column:span 1;}
   .eoi-wrap{padding:18px;}
 }
 </style>
 </head>
 <body>
-<div class="wrap">
-<div class="card">
+<div class="wrap"><div class="card">
   <div class="hdr">
     <div class="badge">MLA Feedlot RAAD Program</div>
-    <h1>Could your feedlot qualify for up to $1.8M in R&D co-funding?</h1>
-    <p>Answer 8 quick questions to check your eligibility, then lodge your EOI directly from this page.</p>
+    <h1>Could your operation qualify for up to $1.8M in R&D co-funding?</h1>
+    <p>Answer 10 quick questions to discover which RAAD-funded projects could work on your property — then register your interest directly from this page.</p>
   </div>
   <div class="prog-wrap">
-    <div class="prog-meta"><span id="ptxt">Question 1 of 8</span><span id="ppct">0%</span></div>
+    <div class="prog-meta"><span id="ptxt">Question 1 of 10</span><span id="ppct">0%</span></div>
     <div class="prog-track"><div class="prog-fill" id="pfill" style="width:0%"></div></div>
   </div>
   <div class="body">
 
     <div class="qblock active" id="q0">
-      <div class="qnum">Question 1 of 8</div>
-      <div class="qtxt">What type of livestock operation do you run?</div>
-      <div class="qhint">The current RAAD round is focused on beef feedlot operations.</div>
+      <div class="qnum">Question 1 of 10</div>
+      <div class="qtxt">What best describes your operation?</div>
+      <div class="qhint">RAAD is open to a range of livestock operations — select what fits you best.</div>
       <div class="opts">
-        <button class="opt" data-val="feedlot" data-score="2"><span class="dot"></span>Beef feedlot</button>
-        <button class="opt" data-val="mixed" data-score="1"><span class="dot"></span>Mixed operation (includes feedlotting)</button>
-        <button class="opt" data-val="grazing" data-score="0"><span class="dot"></span>Grazing / pastoral only</button>
-        <button class="opt" data-val="sheep" data-score="0"><span class="dot"></span>Sheep / lamb operation</button>
+        <button class="opt" data-val="feedlot" data-score="3"><span class="dot"></span>Beef feedlot</button>
+        <button class="opt" data-val="mixed" data-score="3"><span class="dot"></span>Mixed — feedlotting plus grazing or cropping</button>
+        <button class="opt" data-val="sheep" data-score="2"><span class="dot"></span>Sheep / lamb operation</button>
+        <button class="opt" data-val="grazing" data-score="2"><span class="dot"></span>Cattle grazing / pastoral</button>
+        <button class="opt" data-val="other" data-score="2"><span class="dot"></span>Other livestock operation</button>
       </div>
     </div>
 
     <div class="qblock" id="q1">
-      <div class="qnum">Question 2 of 8</div>
-      <div class="qtxt">Is your feedlot NFAS accredited?</div>
-      <div class="qhint">National Feedlot Accreditation Scheme (NFAS) accreditation is required to participate.</div>
+      <div class="qnum">Question 2 of 10</div>
+      <div class="qtxt">Is your operation NFAS accredited?</div>
+      <div class="qhint">NFAS accreditation is required for feedlot participants. Grazing and other operations may still be considered for novel project ideas.</div>
       <div class="opts">
-        <button class="opt" data-val="yes" data-score="2"><span class="dot"></span>Yes — we are NFAS accredited</button>
-        <button class="opt" data-val="inprogress" data-score="1"><span class="dot"></span>In progress — currently seeking accreditation</button>
-        <button class="opt" data-val="no" data-score="0"><span class="dot"></span>No — we are not NFAS accredited</button>
+        <button class="opt" data-val="yes" data-score="3"><span class="dot"></span>Yes — NFAS accredited</button>
+        <button class="opt" data-val="inprogress" data-score="2"><span class="dot"></span>In progress — currently seeking accreditation</button>
+        <button class="opt" data-val="no" data-score="1"><span class="dot"></span>No — not NFAS accredited</button>
+        <button class="opt" data-val="na" data-score="2"><span class="dot"></span>Not applicable to my operation type</button>
       </div>
     </div>
 
     <div class="qblock" id="q2">
-      <div class="qnum">Question 3 of 8</div>
-      <div class="qtxt">How many head does your feedlot typically run?</div>
-      <div class="qhint">A 2,000 head project over 2 years can attract up to $1.8M in MLA co-funding.</div>
+      <div class="qnum">Question 3 of 10</div>
+      <div class="qtxt">Roughly how many livestock do you run?</div>
+      <div class="qhint">Larger operations attract more co-funding — a 2,000 head project over 2 years can attract up to $1.8M from MLA.</div>
       <div class="opts">
-        <button class="opt" data-val="large" data-score="2"><span class="dot"></span>1,000+ head</button>
-        <button class="opt" data-val="medium" data-score="2"><span class="dot"></span>500–999 head</button>
-        <button class="opt" data-val="small" data-score="1"><span class="dot"></span>Under 500 head</button>
+        <button class="opt" data-val="xl" data-score="3"><span class="dot"></span>2,000+</button>
+        <button class="opt" data-val="lg" data-score="3"><span class="dot"></span>1,000–1,999</button>
+        <button class="opt" data-val="md" data-score="2"><span class="dot"></span>500–999</button>
+        <button class="opt" data-val="sm" data-score="1"><span class="dot"></span>Under 500</button>
       </div>
     </div>
 
     <div class="qblock" id="q3">
-      <div class="qnum">Question 4 of 8</div>
-      <div class="qtxt">Does your feedlot currently have shade or shelter infrastructure?</div>
-      <div class="qhint">MLA gives higher priority to feedlots with no existing shade or shelter.</div>
+      <div class="qnum">Question 4 of 10</div>
+      <div class="qtxt">Does your property currently have shade or shelter infrastructure?</div>
+      <div class="qhint">MLA gives higher priority to operations with no existing shade or shelter — one of the strongest eligibility signals.</div>
       <div class="opts">
-        <button class="opt" data-val="none" data-score="2"><span class="dot"></span>No shade or shelter at all</button>
-        <button class="opt" data-val="partial" data-score="1"><span class="dot"></span>Some shade/shelter, but want to trial new approaches</button>
-        <button class="opt" data-val="full" data-score="0"><span class="dot"></span>Fully covered — no new infrastructure planned</button>
+        <button class="opt" data-val="none" data-score="3"><span class="dot"></span>None at all</button>
+        <button class="opt" data-val="partial" data-score="2"><span class="dot"></span>Some, but want to trial new approaches</button>
+        <button class="opt" data-val="full" data-score="1"><span class="dot"></span>Fully covered — nothing new planned</button>
       </div>
     </div>
 
     <div class="qblock" id="q4">
-      <div class="qnum">Question 5 of 8</div>
-      <div class="qtxt">Are you open to trialling a new or novel shade/shelter design?</div>
-      <div class="qhint">RAAD favours fresh approaches — assessors prioritise projects that offer something new to the industry.</div>
-      <div class="opts">
-        <button class="opt" data-val="yes" data-score="2"><span class="dot"></span>Yes — we'd welcome a new approach</button>
-        <button class="opt" data-val="maybe" data-score="1"><span class="dot"></span>Possibly — depends on the design and cost</button>
-        <button class="opt" data-val="no" data-score="0"><span class="dot"></span>No — we have a specific design already locked in</button>
+      <div class="qnum">Question 5 of 10</div>
+      <div class="qtxt">Which of these do you have a question, challenge or idea around?</div>
+      <div class="qhint">These are all areas RAAD can potentially fund — even if you haven't thought of them as R&D before.</div>
+      <p class="mhint">Select all that apply</p>
+      <div class="multi-opts">
+        <button class="mopt" data-val="shade"><span class="mbox"></span>Shade or shelter structures</button>
+        <button class="mopt" data-val="water"><span class="mbox"></span>Water use efficiency or self-cleaning / aerated drinking troughs</button>
+        <button class="mopt" data-val="solar"><span class="mbox"></span>Solar canopy integration</button>
+        <button class="mopt" data-val="automation"><span class="mbox"></span>Automation (e.g. feeders, monitoring, drenching equipment)</button>
+        <button class="mopt" data-val="bedding"><span class="mbox"></span>Stocking density or bedding management</button>
+        <button class="mopt" data-val="bunk"><span class="mbox"></span>Bunk or feed space management</button>
+        <button class="mopt" data-val="manure"><span class="mbox"></span>Manure, effluent or odour management</button>
+        <button class="mopt" data-val="welfare"><span class="mbox"></span>Animal health, welfare or performance</button>
+        <button class="mopt" data-val="novel"><span class="mbox"></span>A novel idea not listed here</button>
       </div>
     </div>
 
     <div class="qblock" id="q5">
-      <div class="qnum">Question 6 of 8</div>
-      <div class="qtxt">Can you provide full feedlot closeout data?</div>
-      <div class="qhint">Including animal performance, carcase grading and economic records — required for both Gold and Silver Standard.</div>
+      <div class="qnum">Question 6 of 10</div>
+      <div class="qtxt">Is your project idea new or different to what's already been done?</div>
+      <div class="qhint">RAAD prioritises fresh approaches. Novel ideas score highly with the assessment committee.</div>
       <div class="opts">
-        <button class="opt" data-val="yes" data-score="2"><span class="dot"></span>Yes — we collect and can provide this data</button>
-        <button class="opt" data-val="partial" data-score="1"><span class="dot"></span>Some of it — could work toward full compliance</button>
-        <button class="opt" data-val="no" data-score="0"><span class="dot"></span>No — we don't currently collect this data</button>
+        <button class="opt" data-val="yes" data-score="3"><span class="dot"></span>Yes — it's a genuinely new idea or approach</button>
+        <button class="opt" data-val="maybe" data-score="2"><span class="dot"></span>Possibly — I think it's different but not certain</button>
+        <button class="opt" data-val="no" data-score="1"><span class="dot"></span>Not sure — it may have been done before</button>
       </div>
     </div>
 
     <div class="qblock" id="q6">
-      <div class="qnum">Question 7 of 8</div>
-      <div class="qtxt">Would you share your research results with the broader feedlot industry?</div>
-      <div class="qhint">This is a key assessment criterion — participants must share learnings so the whole industry benefits.</div>
+      <div class="qnum">Question 7 of 10</div>
+      <div class="qtxt">Can you provide performance and economic data from your operation?</div>
+      <div class="qhint">RAAD requires participants to collect and share animal performance, carcase grading and economic records during the project.</div>
       <div class="opts">
-        <button class="opt" data-val="yes" data-score="2"><span class="dot"></span>Yes — happy to contribute to industry knowledge</button>
-        <button class="opt" data-val="unsure" data-score="1"><span class="dot"></span>Unsure — would want to understand what's involved</button>
-        <button class="opt" data-val="no" data-score="0"><span class="dot"></span>No — we prefer to keep our data private</button>
+        <button class="opt" data-val="yes" data-score="3"><span class="dot"></span>Yes — we already collect this data</button>
+        <button class="opt" data-val="partial" data-score="2"><span class="dot"></span>Some of it — could work toward full compliance</button>
+        <button class="opt" data-val="no" data-score="1"><span class="dot"></span>No — we don't currently collect this</button>
       </div>
     </div>
 
     <div class="qblock" id="q7">
-      <div class="qnum">Question 8 of 8</div>
-      <div class="qtxt">Which research tier suits your operation?</div>
-      <div class="qhint">Gold Standard ($2.46/head/day) — randomised controlled trial + peer-reviewed publication. Silver Standard ($1.97/head/day) — simpler commercial evaluation.</div>
+      <div class="qnum">Question 8 of 10</div>
+      <div class="qtxt">Would you share your research results openly with the broader industry?</div>
+      <div class="qhint">A key assessment criterion — participants are expected to contribute learnings so the whole industry benefits.</div>
       <div class="opts">
-        <button class="opt" data-val="gold" data-score="2"><span class="dot"></span>Gold Standard — rigorous scientific trial</button>
-        <button class="opt" data-val="silver" data-score="2"><span class="dot"></span>Silver Standard — commercially focused evaluation</button>
-        <button class="opt" data-val="unsure" data-score="1"><span class="dot"></span>Not sure yet — need more information</button>
+        <button class="opt" data-val="yes" data-score="3"><span class="dot"></span>Yes — happy to contribute to industry knowledge</button>
+        <button class="opt" data-val="unsure" data-score="2"><span class="dot"></span>Unsure — would want to understand what's involved</button>
+        <button class="opt" data-val="no" data-score="1"><span class="dot"></span>Prefer to keep our data private — but still interested</button>
+      </div>
+    </div>
+
+    <div class="qblock" id="q8">
+      <div class="qnum">Question 9 of 10</div>
+      <div class="qtxt">Could you obtain regulatory and ethics approvals for an on-property research project?</div>
+      <div class="qhint">All RAAD projects require animal ethics approval and relevant regulatory sign-off before commencement.</div>
+      <div class="opts">
+        <button class="opt" data-val="yes" data-score="3"><span class="dot"></span>Yes — we could obtain these approvals</button>
+        <button class="opt" data-val="maybe" data-score="2"><span class="dot"></span>Probably — would need to investigate</button>
+        <button class="opt" data-val="unsure" data-score="1"><span class="dot"></span>Not sure — would want to discuss this</button>
+      </div>
+    </div>
+
+    <div class="qblock" id="q9">
+      <div class="qnum">Question 10 of 10</div>
+      <div class="qtxt">How involved would you want to be in the research process?</div>
+      <div class="qhint">Gold Standard ($2.46/head/day) — full randomised trial + peer-reviewed publication. Silver Standard ($1.97/head/day) — practical commercial evaluation.</div>
+      <div class="opts">
+        <button class="opt" data-val="gold" data-score="3"><span class="dot"></span>Gold Standard — full scientific trial with publication</button>
+        <button class="opt" data-val="silver" data-score="3"><span class="dot"></span>Silver Standard — practical commercial evaluation</button>
+        <button class="opt" data-val="unsure" data-score="2"><span class="dot"></span>Not sure yet — need more information</button>
       </div>
     </div>
 
@@ -231,65 +256,55 @@ body{font-family:'Mulish',sans-serif;background:#e8f5ec;color:var(--tx);min-heig
         <div class="rlbl" id="rlbl"></div>
         <div class="rtitle" id="rtitle"></div>
         <div class="rbody" id="rbody"></div>
+        <div id="highlight" style="display:none" class="highlight-box"><p id="highlight-txt"></p></div>
+        <div class="ptags" id="ptags"></div>
+        <div class="prelim-note"><strong>Note:</strong> This is a preliminary eligibility check only. Final eligibility is determined by MLA's independent assessment committee. All operations are encouraged to register their interest — Rob at Entegra can help you assess your options before you submit.</div>
       </div>
 
-      <!-- EOI FORM -->
       <div class="eoi-wrap" id="eoi-wrap" style="display:none">
-        <h3>Lodge your Expression of Interest</h3>
-        <p class="eoi-sub">Fill in your details below. Your EOI will be sent to MLA and Rob at Entegra will be notified to help guide your application.</p>
+        <h3>Register your interest</h3>
+        <p class="eoi-sub">Fill in your details below. Rob at Entegra will be in touch to discuss your project idea and help shape your application before it goes to MLA.</p>
         <div id="eoi-inner">
-          <div class="sec-title">Your Details</div>
+          <div class="stitle">Your Details</div>
           <div class="fgrid">
             <div class="fg" id="fg-fn"><label>First name<span>*</span></label><input type="text" id="fn" placeholder="e.g. John"><div class="emsg">Required</div></div>
             <div class="fg" id="fg-ln"><label>Last name<span>*</span></label><input type="text" id="ln" placeholder="e.g. Smith"><div class="emsg">Required</div></div>
             <div class="fg" id="fg-mob"><label>Mobile<span>*</span></label><input type="tel" id="mob" placeholder="04XX XXX XXX"><div class="emsg">Required</div></div>
             <div class="fg" id="fg-eml"><label>Email<span>*</span></label><input type="email" id="eml" placeholder="name@property.com.au"><div class="emsg">Required — must be valid email</div></div>
           </div>
-          <div class="sec-title">Your Feedlot</div>
+          <div class="stitle">Your Operation</div>
           <div class="fgrid">
-            <div class="fg s2" id="fg-fln"><label>Feedlot name<span>*</span></label><input type="text" id="fln" placeholder="e.g. Smithfield Feedlot"><div class="emsg">Required</div></div>
-            <div class="fg s2" id="fg-adr"><label>Feedlot site address<span>*</span></label><input type="text" id="adr" placeholder="Street address, Town, State"><div class="emsg">Required</div></div>
+            <div class="fg s2" id="fg-fln"><label>Property / feedlot name<span>*</span></label><input type="text" id="fln" placeholder="e.g. Smithfield Feedlot"><div class="emsg">Required</div></div>
+            <div class="fg s2" id="fg-adr"><label>Property address<span>*</span></label><input type="text" id="adr" placeholder="Street address, Town, State"><div class="emsg">Required</div></div>
             <div class="fg" id="fg-nfas"><label>NFAS Accredited<span>*</span></label>
-              <select id="nfas"><option value="">Select...</option><option>Yes</option><option>In progress</option><option>No</option></select>
+              <select id="nfas"><option value="">Select...</option><option>Yes</option><option>In progress</option><option>No</option><option>Not applicable</option></select>
               <div class="emsg">Required</div></div>
             <div class="fg" id="fg-tier"><label>Preferred project tier<span>*</span></label>
               <select id="tier"><option value="">Select...</option><option value="Gold Standard – $2.46/head/day">Gold Standard – $2.46/head/day</option><option value="Silver Standard – $1.97/head/day">Silver Standard – $1.97/head/day</option><option value="Unsure">Unsure — need more info</option></select>
               <div class="emsg">Required</div></div>
           </div>
-          <div class="sec-title">Study Details</div>
+          <div class="stitle">Your Project Idea</div>
           <div class="fgrid">
-            <div class="fg s2" id="fg-obj"><label>Brief R&D objectives<span>*</span></label>
-              <textarea id="obj" placeholder="Describe what you want to study and why it matters (max 200 words)..." oninput="wcount(this)"></textarea>
+            <div class="fg s2" id="fg-obj"><label>Brief description of your project idea<span>*</span></label>
+              <textarea id="obj" placeholder="Describe what you want to trial and why it matters for your operation (max 200 words)..." oninput="wcount(this)"></textarea>
               <div class="wc"><span id="wc">0</span> / 200 words</div>
               <div class="emsg">Required</div></div>
-            <div class="fg"><label>Shade/shelter type</label>
-              <select id="shade"><option value="">Select...</option><option>Shade</option><option>Partial Pen Shelter</option><option>Full Pen Shelter</option><option>Not yet decided</option></select></div>
-            <div class="fg"><label>Study duration</label>
-              <select id="dur"><option value="2 Years">2 Years (standard)</option><option value="Other">Other</option></select></div>
-            <div class="fg"><label>Total head in study</label><input type="number" id="hd" placeholder="e.g. 2000" min="1"></div>
-            <div class="fg"><label>Pen size (m × m)</label><input type="text" id="pen" placeholder="e.g. 50 x 30"></div>
+            <div class="fg"><label>Livestock count</label><input type="number" id="hd" placeholder="e.g. 2000" min="1"></div>
+            <div class="fg"><label>Preferred study duration</label>
+              <select id="dur"><option value="2 Years">2 Years (standard)</option><option value="Other">Other — to be discussed</option></select></div>
           </div>
-          <div class="sec-title">Regulatory & Consent</div>
-          <div class="fg">
-            <label>Regulatory approvals will be obtained prior to commencement<span>*</span></label>
-            <div class="radio-g">
-              <label class="ri"><input type="radio" name="reg" value="Yes"> Yes</label>
-              <label class="ri"><input type="radio" name="reg" value="No"> No / Not sure yet</label>
-            </div>
-          </div>
-          <div style="margin-top:20px">
-            <label class="terms" id="tl"><input type="checkbox" id="tc"> I understand this information will be shared with MLA and Rob Sobey at Entegra to assist with my RAAD application.</label>
-            <button class="btn-sub" id="bsub">
-              <span id="btxt">Submit my Expression of Interest</span>
-              <span class="spin" id="bspin"></span>
-            </button>
-            <p style="font-size:11px;color:var(--tl);text-align:center;margin-top:9px">Your details are sent securely. MLA typically responds within 6 weeks.</p>
-          </div>
+          <div class="stitle">Consent</div>
+          <label class="terms" id="tl"><input type="checkbox" id="tc"> I understand this information will be shared with Rob Sobey at Entegra and may be passed on to MLA to assist with a RAAD application.</label>
+          <button class="btn-sub" id="bsub">
+            <span id="btxt">Register my interest</span>
+            <span class="spin" id="bspin"></span>
+          </button>
+          <p style="font-size:11px;color:var(--tl);text-align:center;margin-top:9px">Rob will be in touch within 2 business days to discuss next steps.</p>
         </div>
         <div class="succ" id="succ">
           <div class="succ-ico">🎉</div>
-          <h3>EOI submitted successfully</h3>
-          <p>Your Expression of Interest has been sent. MLA will be in touch within 6 weeks — often with a call or site visit. Rob at Entegra has also been notified and can help you prepare.</p>
+          <h3>Interest registered successfully</h3>
+          <p>Rob at Entegra has been notified and will be in touch within 2 business days to discuss your project idea and help you decide whether to proceed with a formal MLA EOI.</p>
           <div class="cc">
             <div class="cc-lbl">Your Entegra contact</div>
             <div class="cc-name">Rob Sobey</div>
@@ -302,21 +317,6 @@ body{font-family:'Mulish',sans-serif;background:#e8f5ec;color:var(--tx);min-heig
         </div>
       </div>
 
-      <!-- NOT ELIGIBLE -->
-      <div class="not-elig" id="not-elig" style="display:none">
-        <div class="cc">
-          <div class="cc-lbl">Talk to Rob at Entegra</div>
-          <div class="cc-name">Rob Sobey</div>
-          <div class="cc-role">Entegra — Feedlot Industry Specialist</div>
-          <div class="cc-links">
-            <a href="mailto:rob.s@entegra.com.au" class="cc-link">✉ rob.s@entegra.com.au</a>
-            <a href="tel:+61483986590" class="cc-link">📞 0483 986 590</a>
-          </div>
-        </div>
-        <div class="or-div">or</div>
-        <a href="https://www.mla.com.au/research-and-development/feedlot/feedlot-research-for-accelerated-adoption-raad-program" target="_blank" class="btn-mla">Learn about future RAAD rounds →</a>
-      </div>
-
       <button class="restart" id="rbtn">Start again</button>
     </div>
 
@@ -326,158 +326,164 @@ body{font-family:'Mulish',sans-serif;background:#e8f5ec;color:var(--tx);min-heig
     </div>
   </div>
   <div class="foot">Based on MLA Feedlot RAAD Program guidelines · mla.com.au · Powered by Entegra</div>
-</div>
-</div>
+</div></div>
 
 <script>
 (function(){
-  var FSPREE = 'xqeyrpek';
-  var GSHEET = 'https://script.google.com/macros/s/AKfycbz4DSZzPIBEi8kFOFOFYhS7uNDj441MZVYu8ONOYDp_zurlZB_xRCcct6ZR75i3PK45/exec';
-  var TQ = 8, cur = 0, scores = [], answers = [];
+  var FSPREE='xqeyrpek';
+  var GSHEET='https://script.google.com/macros/s/AKfycbz4DSZzPIBEi8kFOFOFYhS7uNDj441MZVYu8ONOYDp_zurlZB_xRCcct6ZR75i3PK45/exec';
+  var TQ=10, cur=0, scores=[], answers=[], multiSel=[];
 
-  function $(id){ return document.getElementById(id); }
+  var projLabels={
+    shade:'Shade & Shelter', water:'Water Efficiency', solar:'Solar Canopy',
+    automation:'Automation', bedding:'Bedding Management', bunk:'Bunk Management',
+    manure:'Manure & Effluent', welfare:'Animal Welfare', novel:'Novel Innovation'
+  };
+
+  // Projects MLA finds particularly interesting for non-feedlot operators
+  var interestingProjects={
+    water:'Water efficiency and self-cleaning or aerated trough technology is an area MLA has flagged as genuinely interesting — the labour savings alone make it compelling, and it applies across all operation types.',
+    manure:'Manure, effluent and odour management is explicitly listed as a fundable RAAD project area. If you have a novel approach here, it could be very well received.',
+    solar:'Solar canopy integration is one of the specific examples MLA lists — particularly interesting where it doubles as both shade infrastructure and energy generation.',
+    automation:'Automation of feeding, monitoring or animal handling is a priority area for MLA. Even simple innovations that save labour time are worth exploring.',
+    novel:'A novel project idea is exactly what the RAAD assessment committee responds to best. MLA has made clear they want fresh approaches, not repetition of existing work.',
+    welfare:'Animal health and performance projects are a core focus of future RAAD rounds. Your interest here puts you in a strong position for upcoming funding opportunities.'
+  };
+
+  function $(id){return document.getElementById(id);}
 
   function updProg(){
-    var p = Math.round(cur/TQ*100);
-    $('pfill').style.width = p+'%';
-    $('ppct').textContent = p+'%';
-    $('ptxt').textContent = cur < TQ ? 'Question '+(cur+1)+' of '+TQ : 'Complete';
+    var p=Math.round(cur/TQ*100);
+    $('pfill').style.width=p+'%';
+    $('ppct').textContent=p+'%';
+    $('ptxt').textContent=cur<TQ?'Question '+(cur+1)+' of '+TQ:'Complete';
   }
 
-  // Click handling via event delegation on body
-  document.body.addEventListener('click', function(e){
-    // Option buttons
-    var opt = e.target;
-    while(opt && opt !== document.body){
-      if(opt.classList && opt.classList.contains('opt')) break;
-      opt = opt.parentNode;
+  document.body.addEventListener('click',function(e){
+    // single select
+    var opt=e.target;
+    while(opt&&opt!==document.body){if(opt.classList&&opt.classList.contains('opt'))break;opt=opt.parentNode;}
+    if(opt&&opt.classList&&opt.classList.contains('opt')){
+      var block=opt.parentNode;
+      while(block&&!block.classList.contains('qblock'))block=block.parentNode;
+      if(block){block.querySelectorAll('.opt').forEach(function(b){b.classList.remove('sel');});opt.classList.add('sel');$('bnx').disabled=false;}
     }
-    if(opt && opt.classList && opt.classList.contains('opt')){
-      var block = opt.parentNode;
-      while(block && !block.classList.contains('qblock')) block = block.parentNode;
-      if(block){
-        var btns = block.querySelectorAll('.opt');
-        for(var i=0;i<btns.length;i++) btns[i].classList.remove('sel');
-        opt.classList.add('sel');
-        $('bnx').disabled = false;
-      }
+    // multi select
+    var mopt=e.target;
+    while(mopt&&mopt!==document.body){if(mopt.classList&&mopt.classList.contains('mopt'))break;mopt=mopt.parentNode;}
+    if(mopt&&mopt.classList&&mopt.classList.contains('mopt')){
+      mopt.classList.toggle('sel');
+      var mb=mopt.querySelector('.mbox');
+      if(mb)mb.textContent=mopt.classList.contains('sel')?'✓':'';
+      $('bnx').disabled=document.querySelectorAll('#q4 .mopt.sel').length===0;
     }
-    // Next button
-    if(e.target === $('bnx') || (e.target.parentNode === $('bnx'))){
-      goNext();
-    }
-    // Back button
-    if(e.target === $('bbk') || (e.target.parentNode === $('bbk'))){
-      goBack();
-    }
-    // Submit button
-    if(e.target === $('bsub') || e.target === $('btxt')){
-      submitEOI();
-    }
-    // Restart button
-    if(e.target === $('rbtn')){
-      restart();
-    }
+    if(e.target===$('bnx')||e.target.parentNode===$('bnx'))goNext();
+    if(e.target===$('bbk')||e.target.parentNode===$('bbk'))goBack();
+    if(e.target===$('bsub')||e.target===$('btxt'))submitEOI();
+    if(e.target===$('rbtn'))restart();
   });
 
   function goNext(){
-    var block = $('q'+cur);
-    if(!block) return;
-    var sel = block.querySelector('.opt.sel');
-    if(!sel) return;
-    scores[cur] = parseInt(sel.getAttribute('data-score'));
-    answers[cur] = sel.getAttribute('data-val');
-    block.classList.remove('active');
-    cur++;
-    if(cur < TQ){
-      $('q'+cur).classList.add('active');
-      $('bnx').disabled = true;
-      $('bbk').style.visibility = 'visible';
-      updProg();
+    if(cur===4){
+      multiSel=[];
+      document.querySelectorAll('#q4 .mopt.sel').forEach(function(m){multiSel.push(m.getAttribute('data-val'));});
+      if(multiSel.length===0)return;
+      answers[cur]=multiSel.join(', ');
+      scores[cur]=Math.min(multiSel.length,3);
     } else {
-      showResult();
+      var block=$('q'+cur);if(!block)return;
+      var sel=block.querySelector('.opt.sel');if(!sel)return;
+      scores[cur]=parseInt(sel.getAttribute('data-score'));
+      answers[cur]=sel.getAttribute('data-val');
     }
+    $('q'+cur).classList.remove('active');
+    cur++;
+    if(cur<TQ){
+      $('q'+cur).classList.add('active');
+      $('bnx').disabled=true;
+      $('bbk').style.visibility='visible';
+      updProg();
+    } else {showResult();}
   }
 
   function goBack(){
-    if(cur === 0) return;
-    var cb = $('q'+cur);
-    if(cb) cb.classList.remove('active');
+    if(cur===0)return;
+    var cb=$('q'+cur);if(cb)cb.classList.remove('active');
     cur--;
     $('q'+cur).classList.add('active');
-    $('bnx').disabled = false;
-    $('bbk').style.visibility = cur > 0 ? 'visible' : 'hidden';
+    $('bnx').disabled=cur===4?document.querySelectorAll('#q4 .mopt.sel').length===0:false;
+    $('bbk').style.visibility=cur>0?'visible':'hidden';
     updProg();
   }
 
   function showResult(){
-    $('nav').style.display = 'none';
-    $('pfill').style.width = '100%';
-    $('ppct').textContent = '100%';
-    $('ptxt').textContent = 'Complete';
+    $('nav').style.display='none';
+    $('pfill').style.width='100%';$('ppct').textContent='100%';$('ptxt').textContent='Complete';
 
-    var total = scores.reduce(function(a,b){return a+b;},0);
-    var pct = total/16;
-    var notFeedlot = answers[0]==='grazing'||answers[0]==='sheep';
-    var notNFAS = answers[1]==='no';
-    var noShare = answers[6]==='no';
+    var total=scores.reduce(function(a,b){return a+b;},0);
+    var maxScore=30; var pct=total/maxScore;
+
+    var isFeedlot=answers[0]==='feedlot'||answers[0]==='mixed';
+    var nfasOk=answers[1]==='yes'||answers[1]==='inprogress'||answers[1]==='na';
 
     var ico=$('rico'),lbl=$('rlbl'),ttl=$('rtitle'),bdy=$('rbody');
-    var eoiW=$('eoi-wrap'), notW=$('not-elig');
+    var hiBox=$('highlight'),hiTxt=$('highlight-txt'),tags=$('ptags');
 
-    // pre-fill selects
+    // build project tags
+    tags.innerHTML='';
+    multiSel.forEach(function(v){
+      if(projLabels[v]){var t=document.createElement('span');t.className='ptag';t.textContent=projLabels[v];tags.appendChild(t);}
+    });
+
+    // find first interesting project to highlight
+    var highlightMsg='';
+    var priority=['water','manure','solar','automation','novel','welfare'];
+    for(var i=0;i<priority.length;i++){
+      if(multiSel.indexOf(priority[i])>-1&&interestingProjects[priority[i]]){
+        highlightMsg=interestingProjects[priority[i]];break;
+      }
+    }
+    if(highlightMsg){hiTxt.textContent='💡 '+highlightMsg;hiBox.style.display='block';}
+
+    // pre-fill
     var tierMap={gold:'Gold Standard – $2.46/head/day',silver:'Silver Standard – $1.97/head/day',unsure:'Unsure'};
-    var nfasMap={yes:'Yes',inprogress:'In progress',no:'No'};
-    var tv=tierMap[answers[7]]||''; if(tv) $('tier').value=tv;
-    var nv=nfasMap[answers[1]]||''; if(nv) $('nfas').value=nv;
+    var nfasMap={yes:'Yes',inprogress:'In progress',no:'No',na:'Not applicable'};
+    var tv=tierMap[answers[9]]||'';if(tv)$('tier').value=tv;
+    var nv=nfasMap[answers[1]]||'';if(nv)$('nfas').value=nv;
 
-    if(notFeedlot){
-      ico.textContent='🌾'; ico.className='rico lo';
-      lbl.textContent='Not eligible — current round'; lbl.className='rlbl lo';
-      ttl.textContent='RAAD is currently feedlot-specific';
-      bdy.textContent='The current RAAD round focuses on beef feedlot operations. Future rounds will cover broader livestock categories. Rob at Entegra can keep you informed of upcoming opportunities.';
-      notW.style.display='block';
-    } else if(notNFAS){
-      ico.textContent='⚠️'; ico.className='rico md';
-      lbl.textContent='Accreditation required'; lbl.className='rlbl md';
-      ttl.textContent='NFAS accreditation is needed to participate';
-      bdy.textContent='RAAD requires NFAS accreditation. If you\'re not currently accredited, Rob at Entegra can help you understand the process and timelines.';
-      notW.style.display='block';
-    } else if(noShare){
-      ico.textContent='⚠️'; ico.className='rico md';
-      lbl.textContent='One barrier to address'; lbl.className='rlbl md';
-      ttl.textContent='Data sharing is a core requirement';
-      bdy.textContent='RAAD requires participants to share results openly with the industry. It\'s worth a conversation with Rob about what\'s actually involved — many operators find it less onerous than expected.';
-      notW.style.display='block';
-    } else if(pct>=0.72){
-      ico.textContent='✅'; ico.className='rico hi';
-      lbl.textContent='Strong eligibility'; lbl.className='rlbl hi';
-      ttl.textContent='Your operation looks like a strong fit for RAAD';
-      bdy.textContent='Based on your answers, your feedlot aligns well with what MLA is looking for. With up to $1.8M in co-funding available, the next step is lodging an EOI. Fill in your details below.';
-      eoiW.style.display='block';
-    } else if(pct>=0.5){
-      ico.textContent='🔎'; ico.className='rico md';
-      lbl.textContent='Possible fit — worth exploring'; lbl.className='rlbl md';
-      ttl.textContent='You may qualify with the right project design';
-      bdy.textContent='Your operation has some strong signals. A few areas may need clarification, but it\'s worth lodging an EOI. Fill in your details below and Rob will help shape your application.';
-      eoiW.style.display='block';
+    // Everyone gets through — messaging varies by strength
+    if(isFeedlot&&nfasOk&&pct>=0.72){
+      ico.textContent='✅';ico.className='rico hi';
+      lbl.textContent='Preliminary: Strong fit';lbl.className='rlbl hi';
+      ttl.textContent='Your operation looks like a strong candidate for RAAD';
+      bdy.textContent='Based on your answers, your feedlot aligns well with what MLA is looking for. With up to $1.8M in co-funding available, it\'s well worth taking the next step. Register your interest below and Rob will help you shape a strong application.';
+    } else if(isFeedlot&&pct>=0.55){
+      ico.textContent='🔎';ico.className='rico md';
+      lbl.textContent='Preliminary: Possible fit';lbl.className='rlbl md';
+      ttl.textContent='Your feedlot has real potential here';
+      bdy.textContent='There are some strong signals in your answers. A few things may need clarification or preparation — but that\'s exactly what Rob at Entegra is here to help with. Register below and we\'ll work through it together before anything goes to MLA.';
+    } else if(!isFeedlot&&multiSel.length>0){
+      ico.textContent='🌱';ico.className='rico md';
+      lbl.textContent='Preliminary: Worth exploring';lbl.className='rlbl md';
+      ttl.textContent='Your operation has project ideas worth discussing';
+      bdy.textContent='While RAAD\'s current round is centred on feedlot infrastructure, MLA is genuinely open to novel approaches from across the livestock sector. The project ideas you\'ve flagged are exactly the kind of thing worth a conversation. Register below and Rob will explore the options with you.';
     } else {
-      ico.textContent='📋'; ico.className='rico lo';
-      lbl.textContent='A few things to work through'; lbl.className='rlbl lo';
-      ttl.textContent='Not quite there yet — but let\'s talk';
-      bdy.textContent='There are a couple of gaps to address before applying. Reach out to Rob at Entegra — future RAAD rounds will also cover automation, animal health and sustainability.';
-      notW.style.display='block';
+      ico.textContent='📋';ico.className='rico lo';
+      lbl.textContent='Preliminary: Early stage';lbl.className='rlbl lo';
+      ttl.textContent='It\'s early days, but don\'t rule it out';
+      bdy.textContent='Based on your answers, there are a few things to work through before a formal application makes sense. Future RAAD rounds will also cover automation, animal health, productivity and sustainability — so now is a good time to get on Rob\'s radar.';
     }
 
-    for(var i=0;i<TQ;i++){ var qb=$('q'+i); if(qb) qb.classList.remove('active'); }
+    for(var i=0;i<TQ;i++){var qb=$('q'+i);if(qb)qb.classList.remove('active');}
     $('result').classList.add('active');
     $('result').style.display='block';
+    $('eoi-wrap').style.display='block';
   }
 
   function wcount(el){
-    var words = el.value.trim()===''?0:el.value.trim().split(/\s+/).length;
+    var words=el.value.trim()===''?0:el.value.trim().split(/\s+/).length;
     $('wc').textContent=words;
-    if(words>200) el.value=el.value.trim().split(/\s+/).slice(0,200).join(' ');
+    if(words>200)el.value=el.value.trim().split(/\s+/).slice(0,200).join(' ');
   }
   window.wcount=wcount;
 
@@ -491,66 +497,49 @@ body{font-family:'Mulish',sans-serif;background:#e8f5ec;color:var(--tx);min-heig
       {g:'fg-obj',f:'obj',t:'text'}
     ];
     fields.forEach(function(r){
-      var el=$(r.f), fg=$(r.g);
+      var el=$(r.f),fg=$(r.g);
       var v=el.value.trim()!=='';
-      if(r.t==='email'&&v) v=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value);
-      fg.classList.toggle('err',!v);
-      if(!v) ok=false;
+      if(r.t==='email'&&v)v=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value);
+      fg.classList.toggle('err',!v);if(!v)ok=false;
     });
-    if(!$('tc').checked){ $('tl').style.color='var(--er)'; ok=false; }
+    if(!$('tc').checked){$('tl').style.color='var(--er)';ok=false;}
     else $('tl').style.color='';
     return ok;
   }
 
   function submitEOI(){
-    if(!validate()) return;
-    $('bsub').disabled=true;
-    $('btxt').textContent='Submitting...';
-    $('bspin').style.display='inline-block';
+    if(!validate())return;
+    $('bsub').disabled=true;$('btxt').textContent='Submitting...';$('bspin').style.display='inline-block';
     var reg=document.querySelector('input[name="reg"]:checked');
     var payload={
-      first_name:$('fn').value.trim(),
-      last_name:$('ln').value.trim(),
-      mobile:$('mob').value.trim(),
-      email:$('eml').value.trim(),
-      feedlot_name:$('fln').value.trim(),
-      address:$('adr').value.trim(),
-      nfas:$('nfas').value,
-      tier:$('tier').value,
+      first_name:$('fn').value.trim(),last_name:$('ln').value.trim(),
+      mobile:$('mob').value.trim(),email:$('eml').value.trim(),
+      property_name:$('fln').value.trim(),address:$('adr').value.trim(),
+      nfas:$('nfas').value,tier:$('tier').value,
+      project_ideas:multiSel.join(', '),
       objectives:$('obj').value.trim(),
-      shade_type:$('shade').value,
-      duration:$('dur').value,
-      head_count:$('hd').value,
-      pen_size:$('pen').value,
-      regulatory:reg?reg.value:'Not answered',
-      eligibility_score:scores.reduce(function(a,b){return a+b;},0),
+      head_count:$('hd').value,duration:$('dur').value,
+      operation_type:answers[0],eligibility_score:scores.reduce(function(a,b){return a+b;},0),
       submitted_at:new Date().toLocaleString('en-AU'),
       _replyto:$('eml').value.trim(),
-      _subject:'New RAAD EOI — '+$('fln').value.trim()
+      _subject:'New RAAD Interest — '+$('fln').value.trim()+' ('+$('fn').value.trim()+' '+$('ln').value.trim()+')'
     };
     var done=0;
-    function finish(){ done++; if(done>=2){ $('eoi-inner').style.display='none'; $('succ').classList.add('active'); } }
+    function finish(){done++;if(done>=2){$('eoi-inner').style.display='none';$('succ').classList.add('active');}}
     fetch('https://formspree.io/f/'+FSPREE,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(payload)}).then(finish).catch(finish);
     fetch(GSHEET,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(finish).catch(finish);
   }
 
   function restart(){
-    cur=0; scores=[]; answers=[];
+    cur=0;scores=[];answers=[];multiSel=[];
     document.querySelectorAll('.opt').forEach(function(b){b.classList.remove('sel');});
-    $('result').classList.remove('active');
-    $('result').style.display='none';
-    $('eoi-wrap').style.display='none';
-    $('not-elig').style.display='none';
-    $('succ').classList.remove('active');
-    $('eoi-inner').style.display='block';
-    $('bsub').disabled=false;
-    $('btxt').textContent='Submit my Expression of Interest';
-    $('bspin').style.display='none';
-    $('nav').style.display='flex';
-    $('bnx').disabled=true;
-    $('bbk').style.visibility='hidden';
-    $('q0').classList.add('active');
-    updProg();
+    document.querySelectorAll('.mopt').forEach(function(b){b.classList.remove('sel');var m=b.querySelector('.mbox');if(m)m.textContent='';});
+    $('result').classList.remove('active');$('result').style.display='none';
+    $('eoi-wrap').style.display='none';$('succ').classList.remove('active');
+    $('eoi-inner').style.display='block';$('bsub').disabled=false;
+    $('btxt').textContent='Register my interest';$('bspin').style.display='none';
+    $('nav').style.display='flex';$('bnx').disabled=true;$('bbk').style.visibility='hidden';
+    $('q0').classList.add('active');updProg();
   }
 
   updProg();
