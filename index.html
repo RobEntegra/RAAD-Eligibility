@@ -3,873 +3,558 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';">
 <title>MLA RAAD Program — Eligibility Checker</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=Mulish:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Mulish:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  :root {
-    --green-dark: #1a4731;
-    --green-mid: #2d6a4f;
-    --green-light: #52b788;
-    --green-pale: #d8f3dc;
-    --green-faint: #f0faf3;
-    --gold: #c9a84c;
-    --gold-light: #fdf3dc;
-    --text: #1c2b22;
-    --text-light: #4a6358;
-    --white: #ffffff;
-    --border: #c3dfc9;
-    --error: #c0392b;
-  }
-
-  body {
-    font-family: 'Mulish', sans-serif;
-    background: #e8f5ec;
-    color: var(--text);
-    min-height: 100vh;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 32px 16px;
-    background-image:
-      radial-gradient(ellipse at 10% 10%, rgba(82,183,136,0.18) 0%, transparent 55%),
-      radial-gradient(ellipse at 90% 90%, rgba(26,71,49,0.1) 0%, transparent 55%);
-  }
-
-  .wrapper {
-    width: 100%;
-    max-width: 680px;
-  }
-
-  /* ── CARD ── */
-  .card {
-    background: var(--white);
-    border-radius: 24px;
-    overflow: hidden;
-    box-shadow: 0 2px 4px rgba(26,71,49,0.04), 0 24px 80px rgba(26,71,49,0.14);
-  }
-
-  /* ── HEADER ── */
-  .card-header {
-    background: var(--green-dark);
-    padding: 40px 48px 0;
-    position: relative;
-    overflow: hidden;
-  }
-  .card-header::before {
-    content:''; position:absolute; top:-60px; right:-60px;
-    width:260px; height:260px; border-radius:50%;
-    background:rgba(82,183,136,0.1);
-    pointer-events:none;
-  }
-  .card-header::after {
-    content:''; position:absolute; bottom:-80px; left:20%;
-    width:320px; height:320px; border-radius:50%;
-    background:rgba(255,255,255,0.03);
-    pointer-events:none;
-  }
-  .badge {
-    display:inline-flex; align-items:center; gap:7px;
-    background:rgba(82,183,136,0.18);
-    border:1px solid rgba(82,183,136,0.3);
-    color:var(--green-light);
-    font-size:11px; font-weight:700; letter-spacing:0.09em; text-transform:uppercase;
-    padding:5px 14px; border-radius:20px; margin-bottom:18px;
-  }
-  .badge::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--green-light); }
-  .card-header h1 {
-    font-family:'Playfair Display', serif;
-    font-size:30px; line-height:1.2; color:var(--white);
-    margin-bottom:10px; position:relative; z-index:1;
-  }
-  .card-header p {
-    font-size:14px; color:rgba(255,255,255,0.6); line-height:1.6;
-    position:relative; z-index:1; padding-bottom:28px;
-  }
-
-  /* ── PROGRESS ── */
-  .progress-bar-wrap {
-    background:var(--green-dark);
-    padding:0 48px 28px;
-  }
-  .progress-meta {
-    display:flex; justify-content:space-between;
-    font-size:11px; color:rgba(255,255,255,0.4); margin-bottom:8px;
-  }
-  .progress-track { height:3px; background:rgba(255,255,255,0.1); border-radius:4px; overflow:hidden; }
-  .progress-fill { height:100%; background:var(--green-light); border-radius:4px; transition:width 0.45s cubic-bezier(.4,0,.2,1); }
-
-  /* ── BODY ── */
-  .card-body { padding:40px 48px; }
-
-  /* ── QUESTION BLOCKS ── */
-  .question-block { display:none; animation:fadeUp 0.3s ease both; }
-  .question-block.active { display:block; }
-  @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
-
-  .q-number { font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--green-light); margin-bottom:8px; }
-  .q-text { font-family:'Playfair Display', serif; font-size:22px; line-height:1.35; color:var(--text); margin-bottom:7px; }
-  .q-hint { font-size:13px; color:var(--text-light); line-height:1.55; margin-bottom:22px; }
-
-  .options { display:flex; flex-direction:column; gap:10px; }
-  .option {
-    display:flex; align-items:center; gap:14px;
-    padding:14px 18px; border:1.5px solid var(--border);
-    border-radius:12px; cursor:pointer; transition:all 0.2s ease;
-    background:var(--white); font-size:14px; font-weight:500;
-    color:var(--text); text-align:left;
-  }
-  .option:hover { border-color:var(--green-light); background:var(--green-faint); transform:translateX(3px); }
-  .option.selected { border-color:var(--green-mid); background:var(--green-pale); color:var(--green-dark); }
-  .option-dot {
-    width:18px; height:18px; border-radius:50%; border:2px solid var(--border);
-    flex-shrink:0; transition:all 0.2s; display:flex; align-items:center; justify-content:center;
-  }
-  .option.selected .option-dot { border-color:var(--green-mid); background:var(--green-mid); }
-  .option.selected .option-dot::after { content:''; width:6px; height:6px; border-radius:50%; background:white; }
-
-  /* ── NAV ── */
-  .nav-row { display:flex; justify-content:space-between; align-items:center; margin-top:28px; gap:12px; }
-  .btn-back {
-    background:none; border:1.5px solid var(--border); color:var(--text-light);
-    padding:11px 20px; border-radius:10px; font-family:'Mulish',sans-serif;
-    font-size:14px; font-weight:500; cursor:pointer; transition:all 0.2s;
-  }
-  .btn-back:hover { border-color:var(--green-light); color:var(--green-dark); }
-  .btn-next {
-    background:var(--green-dark); color:white; border:none;
-    padding:12px 30px; border-radius:10px; font-family:'Mulish',sans-serif;
-    font-size:14px; font-weight:700; cursor:pointer; transition:all 0.2s; margin-left:auto;
-  }
-  .btn-next:hover:not(:disabled) { background:var(--green-mid); transform:translateY(-1px); box-shadow:0 4px 14px rgba(26,71,49,0.25); }
-  .btn-next:disabled { opacity:0.3; cursor:not-allowed; }
-
-  /* ── RESULT ── */
-  .result-block { display:none; animation:fadeUp 0.4s ease both; }
-  .result-block.active { display:block; }
-
-  .result-header { text-align:center; margin-bottom:32px; }
-  .result-icon { width:72px; height:72px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:30px; margin:0 auto 16px; }
-  .result-icon.high { background:var(--green-pale); }
-  .result-icon.medium { background:#fff8e1; }
-  .result-icon.low { background:#fdecea; }
-  .result-label { font-size:11px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:8px; }
-  .result-label.high { color:var(--green-mid); }
-  .result-label.medium { color:#b8860b; }
-  .result-label.low { color:var(--error); }
-  .result-title { font-family:'Playfair Display',serif; font-size:26px; line-height:1.3; color:var(--text); margin-bottom:10px; }
-  .result-body { font-size:14px; color:var(--text-light); line-height:1.7; margin-bottom:0; }
-
-  /* ── EOI FORM ── */
-  .eoi-form-wrap {
-    background:var(--green-faint);
-    border:1.5px solid var(--border);
-    border-radius:16px;
-    padding:28px 32px;
-    margin-top:28px;
-  }
-  .eoi-form-wrap h3 {
-    font-family:'Playfair Display',serif;
-    font-size:19px; color:var(--green-dark); margin-bottom:6px;
-  }
-  .eoi-form-wrap .eoi-sub {
-    font-size:13px; color:var(--text-light); margin-bottom:24px; line-height:1.5;
-  }
-
-  .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-  .form-grid.full { grid-template-columns:1fr; }
-  .form-group { display:flex; flex-direction:column; gap:5px; }
-  .form-group.span2 { grid-column:span 2; }
-
-  .form-group label {
-    font-size:12px; font-weight:700; color:var(--text); letter-spacing:0.03em;
-  }
-  .form-group label span { color:var(--error); margin-left:2px; }
-
-  .form-group input,
-  .form-group select,
-  .form-group textarea {
-    padding:10px 14px;
-    border:1.5px solid var(--border);
-    border-radius:9px;
-    font-family:'Mulish',sans-serif;
-    font-size:13px;
-    color:var(--text);
-    background:white;
-    transition:border-color 0.2s;
-    outline:none;
-    width:100%;
-  }
-  .form-group input:focus,
-  .form-group select:focus,
-  .form-group textarea:focus { border-color:var(--green-mid); }
-  .form-group textarea { resize:vertical; min-height:90px; }
-
-  .radio-group, .check-group { display:flex; flex-direction:column; gap:8px; margin-top:2px; }
-  .radio-item, .check-item {
-    display:flex; align-items:center; gap:9px;
-    font-size:13px; font-weight:500; color:var(--text); cursor:pointer;
-  }
-  .radio-item input, .check-item input { accent-color:var(--green-mid); width:15px; height:15px; cursor:pointer; }
-
-  .form-section-title {
-    font-size:11px; font-weight:700; letter-spacing:0.09em; text-transform:uppercase;
-    color:var(--green-light); margin:18px 0 10px; padding-top:6px;
-    border-top:1px solid var(--border);
-  }
-  .form-section-title:first-child { border-top:none; margin-top:0; }
-
-  .pen-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px; margin-top:4px; }
-  .pen-label { font-size:11px; font-weight:700; color:var(--text-light); text-align:center; padding-bottom:4px; }
-
-  /* word count */
-  .word-count { font-size:11px; color:var(--text-light); text-align:right; margin-top:3px; }
-
-  /* submit area */
-  .submit-area { margin-top:22px; }
-  .submit-area .terms {
-    display:flex; align-items:flex-start; gap:10px;
-    font-size:12px; color:var(--text-light); line-height:1.5; margin-bottom:16px;
-    cursor:pointer;
-  }
-  .submit-area .terms input { accent-color:var(--green-mid); margin-top:2px; flex-shrink:0; }
-
-  .btn-submit {
-    width:100%; background:var(--green-dark); color:white; border:none;
-    padding:15px 24px; border-radius:12px; font-family:'Mulish',sans-serif;
-    font-size:15px; font-weight:700; cursor:pointer; transition:all 0.2s;
-    display:flex; align-items:center; justify-content:center; gap:8px;
-  }
-  .btn-submit:hover:not(:disabled) { background:var(--green-mid); transform:translateY(-1px); box-shadow:0 6px 20px rgba(26,71,49,0.28); }
-  .btn-submit:disabled { opacity:0.4; cursor:not-allowed; }
-
-  .btn-submit .spinner {
-    width:16px; height:16px; border:2px solid rgba(255,255,255,0.3);
-    border-top-color:white; border-radius:50%; animation:spin 0.7s linear infinite; display:none;
-  }
-  @keyframes spin { to { transform:rotate(360deg); } }
-
-  /* success state */
-  .success-block { display:none; text-align:center; animation:fadeUp 0.4s ease both; }
-  .success-block.active { display:block; }
-  .success-icon { font-size:48px; margin-bottom:16px; }
-  .success-block h3 { font-family:'Playfair Display',serif; font-size:24px; color:var(--green-dark); margin-bottom:10px; }
-  .success-block p { font-size:14px; color:var(--text-light); line-height:1.7; margin-bottom:20px; }
-
-  /* contact card */
-  .contact-card {
-    background:white; border:1.5px solid var(--border); border-radius:14px;
-    padding:20px 24px; margin-top:20px; text-align:left;
-  }
-  .contact-card-label { font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--green-light); margin-bottom:10px; }
-  .contact-name { font-weight:700; font-size:15px; color:var(--text); margin-bottom:2px; }
-  .contact-role { font-size:12px; color:var(--text-light); margin-bottom:12px; }
-  .contact-links { display:flex; flex-wrap:wrap; gap:8px; }
-  .contact-link {
-    display:inline-flex; align-items:center; gap:6px;
-    font-size:12px; font-weight:600; color:var(--green-dark);
-    text-decoration:none; background:var(--green-faint);
-    border:1px solid var(--border); padding:6px 12px;
-    border-radius:7px; transition:all 0.15s;
-  }
-  .contact-link:hover { border-color:var(--green-light); background:var(--green-pale); }
-
-  .or-divider {
-    display:flex; align-items:center; gap:12px;
-    font-size:12px; color:var(--text-light); margin:16px 0;
-  }
-  .or-divider::before, .or-divider::after {
-    content:''; flex:1; height:1px; background:var(--border);
-  }
-
-  .btn-mla-eoi {
-    display:block; text-align:center; text-decoration:none;
-    background:white; color:var(--green-dark);
-    border:1.5px solid var(--border); border-radius:12px;
-    padding:13px 24px; font-family:'Mulish',sans-serif;
-    font-size:14px; font-weight:600; transition:all 0.2s;
-  }
-  .btn-mla-eoi:hover { border-color:var(--green-light); background:var(--green-faint); }
-
-  .not-eligible-actions { display:flex; flex-direction:column; gap:10px; margin-top:24px; }
-
-  .restart-btn {
-    background:none; border:none; color:var(--text-light);
-    font-family:'Mulish',sans-serif; font-size:13px;
-    cursor:pointer; text-decoration:underline;
-    margin-top:14px; display:block; margin-left:auto; margin-right:auto;
-    transition:color 0.2s;
-  }
-  .restart-btn:hover { color:var(--green-dark); }
-
-  .card-footer {
-    padding:14px 48px 20px; border-top:1px solid var(--green-faint);
-    text-align:center; font-size:11px; color:#aabdb3;
-  }
-
-  .error-msg { font-size:11px; color:var(--error); margin-top:3px; display:none; }
-  .form-group.has-error input,
-  .form-group.has-error select,
-  .form-group.has-error textarea { border-color:var(--error); }
-  .form-group.has-error .error-msg { display:block; }
-
-  @media(max-width:520px) {
-    .card-header, .card-body, .progress-bar-wrap, .card-footer { padding-left:24px; padding-right:24px; }
-    .card-header { padding-top:28px; }
-    .card-header h1 { font-size:22px; }
-    .q-text { font-size:18px; }
-    .form-grid { grid-template-columns:1fr; }
-    .form-group.span2 { grid-column:span 1; }
-    .pen-grid { grid-template-columns:1fr; }
-    .eoi-form-wrap { padding:20px; }
-  }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gd:#1a4731;--gm:#2d6a4f;--gl:#52b788;--gp:#d8f3dc;--gf:#f0faf3;
+  --tx:#1c2b22;--tl:#4a6358;--wh:#ffffff;--bd:#c3dfc9;--er:#c0392b;
+}
+body{font-family:'Mulish',sans-serif;background:#e8f5ec;color:var(--tx);min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:32px 16px;}
+.wrap{width:100%;max-width:660px;}
+.card{background:var(--wh);border-radius:24px;overflow:hidden;box-shadow:0 2px 4px rgba(26,71,49,.05),0 24px 80px rgba(26,71,49,.14);}
+.hdr{background:var(--gd);padding:36px 44px 0;position:relative;}
+.badge{display:inline-flex;align-items:center;gap:6px;background:rgba(82,183,136,.18);border:1px solid rgba(82,183,136,.3);color:var(--gl);font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;padding:5px 14px;border-radius:20px;margin-bottom:16px;}
+.badge::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--gl);}
+.hdr h1{font-family:'Playfair Display',serif;font-size:28px;line-height:1.2;color:#fff;margin-bottom:10px;}
+.hdr p{font-size:14px;color:rgba(255,255,255,.6);line-height:1.6;padding-bottom:28px;}
+.prog-wrap{background:var(--gd);padding:0 44px 24px;}
+.prog-meta{display:flex;justify-content:space-between;font-size:11px;color:rgba(255,255,255,.4);margin-bottom:7px;}
+.prog-track{height:3px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden;}
+.prog-fill{height:100%;background:var(--gl);border-radius:4px;transition:width .4s ease;}
+.body{padding:36px 44px;}
+.qblock{display:none;}
+.qblock.active{display:block;animation:fu .3s ease both;}
+@keyframes fu{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.qnum{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gl);margin-bottom:8px;}
+.qtxt{font-family:'Playfair Display',serif;font-size:22px;line-height:1.35;color:var(--tx);margin-bottom:7px;}
+.qhint{font-size:13px;color:var(--tl);line-height:1.55;margin-bottom:22px;}
+.opts{display:flex;flex-direction:column;gap:10px;}
+.opt{
+  display:flex;align-items:center;gap:14px;
+  padding:14px 18px;border:1.5px solid var(--bd);border-radius:12px;
+  cursor:pointer;background:var(--wh);font-size:14px;font-weight:500;
+  color:var(--tx);text-align:left;width:100%;
+  transition:border-color .2s,background .2s,transform .2s;
+}
+.opt:hover{border-color:var(--gl);background:var(--gf);transform:translateX(3px);}
+.opt.sel{border-color:var(--gm);background:var(--gp);color:var(--gd);}
+.dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--bd);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;pointer-events:none;}
+.opt.sel .dot{border-color:var(--gm);background:var(--gm);}
+.opt.sel .dot::after{content:'';width:6px;height:6px;border-radius:50%;background:#fff;}
+.nav{display:flex;justify-content:space-between;align-items:center;margin-top:28px;gap:12px;}
+.btn-back{background:none;border:1.5px solid var(--bd);color:var(--tl);padding:11px 20px;border-radius:10px;font-family:'Mulish',sans-serif;font-size:14px;font-weight:500;cursor:pointer;transition:all .2s;}
+.btn-back:hover{border-color:var(--gl);color:var(--gd);}
+.btn-next{background:var(--gd);color:#fff;border:none;padding:12px 30px;border-radius:10px;font-family:'Mulish',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;margin-left:auto;}
+.btn-next:hover:not(:disabled){background:var(--gm);transform:translateY(-1px);box-shadow:0 4px 14px rgba(26,71,49,.25);}
+.btn-next:disabled{opacity:.3;cursor:not-allowed;}
+/* result */
+.rblock{display:none;}
+.rblock.active{display:block;animation:fu .4s ease both;}
+.rhdr{text-align:center;margin-bottom:28px;}
+.rico{width:70px;height:70px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px;margin:0 auto 14px;}
+.rico.hi{background:var(--gp)}.rico.md{background:#fff8e1}.rico.lo{background:#fdecea}
+.rlbl{font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;}
+.rlbl.hi{color:var(--gm)}.rlbl.md{color:#b8860b}.rlbl.lo{color:var(--er)}
+.rtitle{font-family:'Playfair Display',serif;font-size:24px;line-height:1.3;color:var(--tx);margin-bottom:10px;}
+.rbody{font-size:14px;color:var(--tl);line-height:1.7;}
+/* eoi form */
+.eoi-wrap{background:var(--gf);border:1.5px solid var(--bd);border-radius:16px;padding:26px 30px;margin-top:26px;}
+.eoi-wrap h3{font-family:'Playfair Display',serif;font-size:19px;color:var(--gd);margin-bottom:6px;}
+.eoi-sub{font-size:13px;color:var(--tl);margin-bottom:22px;line-height:1.5;}
+.sec-title{font-size:11px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:var(--gl);margin:18px 0 10px;padding-top:6px;border-top:1px solid var(--bd);}
+.sec-title:first-of-type{border-top:none;margin-top:0;}
+.fgrid{display:grid;grid-template-columns:1fr 1fr;gap:13px;}
+.fg{display:flex;flex-direction:column;gap:4px;}
+.fg.s2{grid-column:span 2;}
+.fg label{font-size:12px;font-weight:700;color:var(--tx);}
+.fg label span{color:var(--er);margin-left:2px;}
+.fg input,.fg select,.fg textarea{padding:10px 13px;border:1.5px solid var(--bd);border-radius:9px;font-family:'Mulish',sans-serif;font-size:13px;color:var(--tx);background:#fff;outline:none;width:100%;transition:border-color .2s;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--gm);}
+.fg textarea{resize:vertical;min-height:85px;}
+.fg.err input,.fg.err select,.fg.err textarea{border-color:var(--er);}
+.emsg{font-size:11px;color:var(--er);display:none;}
+.fg.err .emsg{display:block;}
+.wc{font-size:11px;color:var(--tl);text-align:right;margin-top:2px;}
+.radio-g{display:flex;flex-direction:column;gap:7px;margin-top:2px;}
+.ri{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;cursor:pointer;}
+.ri input{accent-color:var(--gm);width:15px;height:15px;}
+.terms{display:flex;align-items:flex-start;gap:9px;font-size:12px;color:var(--tl);line-height:1.5;margin-bottom:14px;cursor:pointer;}
+.terms input{accent-color:var(--gm);margin-top:2px;flex-shrink:0;}
+.btn-sub{width:100%;background:var(--gd);color:#fff;border:none;padding:15px;border-radius:12px;font-family:'Mulish',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn-sub:hover:not(:disabled){background:var(--gm);transform:translateY(-1px);box-shadow:0 6px 20px rgba(26,71,49,.28);}
+.btn-sub:disabled{opacity:.4;cursor:not-allowed;}
+.spin{width:16px;height:16px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .7s linear infinite;display:none;}
+@keyframes sp{to{transform:rotate(360deg)}}
+/* success */
+.succ{display:none;text-align:center;animation:fu .4s ease both;}
+.succ.active{display:block;}
+.succ-ico{font-size:46px;margin-bottom:14px;}
+.succ h3{font-family:'Playfair Display',serif;font-size:22px;color:var(--gd);margin-bottom:10px;}
+.succ p{font-size:14px;color:var(--tl);line-height:1.7;margin-bottom:18px;}
+/* contact card */
+.cc{background:#fff;border:1.5px solid var(--bd);border-radius:14px;padding:18px 22px;margin-top:18px;text-align:left;}
+.cc-lbl{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--gl);margin-bottom:9px;}
+.cc-name{font-weight:700;font-size:15px;color:var(--tx);margin-bottom:2px;}
+.cc-role{font-size:12px;color:var(--tl);margin-bottom:10px;}
+.cc-links{display:flex;flex-wrap:wrap;gap:8px;}
+.cc-link{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--gd);text-decoration:none;background:var(--gf);border:1px solid var(--bd);padding:6px 11px;border-radius:7px;transition:all .15s;}
+.cc-link:hover{border-color:var(--gl);background:var(--gp);}
+.not-elig{display:flex;flex-direction:column;gap:10px;margin-top:22px;}
+.or-div{display:flex;align-items:center;gap:12px;font-size:12px;color:var(--tl);}
+.or-div::before,.or-div::after{content:'';flex:1;height:1px;background:var(--bd);}
+.btn-mla{display:block;text-align:center;text-decoration:none;background:#fff;color:var(--gd);border:1.5px solid var(--bd);border-radius:12px;padding:13px 24px;font-family:'Mulish',sans-serif;font-size:14px;font-weight:600;transition:all .2s;}
+.btn-mla:hover{border-color:var(--gl);background:var(--gf);}
+.restart{background:none;border:none;color:var(--tl);font-family:'Mulish',sans-serif;font-size:13px;cursor:pointer;text-decoration:underline;margin:14px auto 0;display:block;transition:color .2s;}
+.restart:hover{color:var(--gd);}
+.foot{padding:14px 44px 20px;border-top:1px solid var(--gf);text-align:center;font-size:11px;color:#aabdb3;}
+@media(max-width:500px){
+  .hdr,.body,.prog-wrap,.foot{padding-left:20px;padding-right:20px;}
+  .hdr{padding-top:26px;}
+  .hdr h1{font-size:22px;}
+  .qtxt{font-size:18px;}
+  .fgrid{grid-template-columns:1fr;}
+  .fg.s2{grid-column:span 1;}
+  .eoi-wrap{padding:18px;}
+}
 </style>
 </head>
 <body>
-<div class="wrapper">
+<div class="wrap">
 <div class="card">
-
-  <!-- HEADER -->
-  <div class="card-header">
+  <div class="hdr">
     <div class="badge">MLA Feedlot RAAD Program</div>
     <h1>Could your feedlot qualify for up to $1.8M in R&D co-funding?</h1>
-    <p>Answer 8 quick questions to check your eligibility for the MLA RAAD Program — then lodge your EOI directly from this page.</p>
+    <p>Answer 8 quick questions to check your eligibility, then lodge your EOI directly from this page.</p>
   </div>
-
-  <!-- PROGRESS -->
-  <div class="progress-bar-wrap">
-    <div class="progress-meta">
-      <span id="progress-text">Question 1 of 8</span>
-      <span id="progress-pct">0%</span>
-    </div>
-    <div class="progress-track">
-      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
-    </div>
+  <div class="prog-wrap">
+    <div class="prog-meta"><span id="ptxt">Question 1 of 8</span><span id="ppct">0%</span></div>
+    <div class="prog-track"><div class="prog-fill" id="pfill" style="width:0%"></div></div>
   </div>
+  <div class="body">
 
-  <!-- BODY -->
-  <div class="card-body">
-
-    <!-- Q1 -->
-    <div class="question-block active" data-q="0">
-      <div class="q-number">Question 1 of 8</div>
-      <div class="q-text">What type of livestock operation do you run?</div>
-      <div class="q-hint">The current RAAD round is focused on beef feedlot operations.</div>
-      <div class="options">
-        <button class="option" data-value="feedlot" data-score="2"><span class="option-dot"></span>Beef feedlot</button>
-        <button class="option" data-value="mixed" data-score="1"><span class="option-dot"></span>Mixed operation (includes feedlotting)</button>
-        <button class="option" data-value="grazing" data-score="0"><span class="option-dot"></span>Grazing / pastoral only</button>
-        <button class="option" data-value="sheep" data-score="0"><span class="option-dot"></span>Sheep / lamb operation</button>
+    <div class="qblock active" id="q0">
+      <div class="qnum">Question 1 of 8</div>
+      <div class="qtxt">What type of livestock operation do you run?</div>
+      <div class="qhint">The current RAAD round is focused on beef feedlot operations.</div>
+      <div class="opts">
+        <button class="opt" data-val="feedlot" data-score="2"><span class="dot"></span>Beef feedlot</button>
+        <button class="opt" data-val="mixed" data-score="1"><span class="dot"></span>Mixed operation (includes feedlotting)</button>
+        <button class="opt" data-val="grazing" data-score="0"><span class="dot"></span>Grazing / pastoral only</button>
+        <button class="opt" data-val="sheep" data-score="0"><span class="dot"></span>Sheep / lamb operation</button>
       </div>
     </div>
 
-    <!-- Q2 -->
-    <div class="question-block" data-q="1">
-      <div class="q-number">Question 2 of 8</div>
-      <div class="q-text">Is your feedlot NFAS accredited?</div>
-      <div class="q-hint">National Feedlot Accreditation Scheme (NFAS) accreditation is required to participate in the RAAD program.</div>
-      <div class="options">
-        <button class="option" data-value="yes" data-score="2"><span class="option-dot"></span>Yes — we are NFAS accredited</button>
-        <button class="option" data-value="inprogress" data-score="1"><span class="option-dot"></span>In progress — currently seeking accreditation</button>
-        <button class="option" data-value="no" data-score="0"><span class="option-dot"></span>No — we are not NFAS accredited</button>
+    <div class="qblock" id="q1">
+      <div class="qnum">Question 2 of 8</div>
+      <div class="qtxt">Is your feedlot NFAS accredited?</div>
+      <div class="qhint">National Feedlot Accreditation Scheme (NFAS) accreditation is required to participate.</div>
+      <div class="opts">
+        <button class="opt" data-val="yes" data-score="2"><span class="dot"></span>Yes — we are NFAS accredited</button>
+        <button class="opt" data-val="inprogress" data-score="1"><span class="dot"></span>In progress — currently seeking accreditation</button>
+        <button class="opt" data-val="no" data-score="0"><span class="dot"></span>No — we are not NFAS accredited</button>
       </div>
     </div>
 
-    <!-- Q3 -->
-    <div class="question-block" data-q="2">
-      <div class="q-number">Question 3 of 8</div>
-      <div class="q-text">How many head does your feedlot typically run?</div>
-      <div class="q-hint">A 2,000 head project over 2 years can attract up to $1.8M in MLA co-funding.</div>
-      <div class="options">
-        <button class="option" data-value="large" data-score="2"><span class="option-dot"></span>1,000+ head</button>
-        <button class="option" data-value="medium" data-score="2"><span class="option-dot"></span>500–999 head</button>
-        <button class="option" data-value="small" data-score="1"><span class="option-dot"></span>Under 500 head</button>
+    <div class="qblock" id="q2">
+      <div class="qnum">Question 3 of 8</div>
+      <div class="qtxt">How many head does your feedlot typically run?</div>
+      <div class="qhint">A 2,000 head project over 2 years can attract up to $1.8M in MLA co-funding.</div>
+      <div class="opts">
+        <button class="opt" data-val="large" data-score="2"><span class="dot"></span>1,000+ head</button>
+        <button class="opt" data-val="medium" data-score="2"><span class="dot"></span>500–999 head</button>
+        <button class="opt" data-val="small" data-score="1"><span class="dot"></span>Under 500 head</button>
       </div>
     </div>
 
-    <!-- Q4 -->
-    <div class="question-block" data-q="3">
-      <div class="q-number">Question 4 of 8</div>
-      <div class="q-text">Does your feedlot currently have shade or shelter infrastructure?</div>
-      <div class="q-hint">MLA gives higher priority to feedlots with no existing shade or shelter — this is one of the strongest eligibility signals.</div>
-      <div class="options">
-        <button class="option" data-value="none" data-score="2"><span class="option-dot"></span>No shade or shelter at all</button>
-        <button class="option" data-value="partial" data-score="1"><span class="option-dot"></span>Some shade/shelter, but want to trial new approaches</button>
-        <button class="option" data-value="full" data-score="0"><span class="option-dot"></span>Fully covered — no new infrastructure planned</button>
+    <div class="qblock" id="q3">
+      <div class="qnum">Question 4 of 8</div>
+      <div class="qtxt">Does your feedlot currently have shade or shelter infrastructure?</div>
+      <div class="qhint">MLA gives higher priority to feedlots with no existing shade or shelter.</div>
+      <div class="opts">
+        <button class="opt" data-val="none" data-score="2"><span class="dot"></span>No shade or shelter at all</button>
+        <button class="opt" data-val="partial" data-score="1"><span class="dot"></span>Some shade/shelter, but want to trial new approaches</button>
+        <button class="opt" data-val="full" data-score="0"><span class="dot"></span>Fully covered — no new infrastructure planned</button>
       </div>
     </div>
 
-    <!-- Q5 -->
-    <div class="question-block" data-q="4">
-      <div class="q-number">Question 5 of 8</div>
-      <div class="q-text">Are you open to trialling a new or novel shade/shelter design?</div>
-      <div class="q-hint">RAAD favours fresh approaches — assessors prioritise projects that offer something new to the industry.</div>
-      <div class="options">
-        <button class="option" data-value="yes" data-score="2"><span class="option-dot"></span>Yes — we'd welcome a new approach</button>
-        <button class="option" data-value="maybe" data-score="1"><span class="option-dot"></span>Possibly — depends on the design and cost</button>
-        <button class="option" data-value="no" data-score="0"><span class="option-dot"></span>No — we have a specific design already locked in</button>
+    <div class="qblock" id="q4">
+      <div class="qnum">Question 5 of 8</div>
+      <div class="qtxt">Are you open to trialling a new or novel shade/shelter design?</div>
+      <div class="qhint">RAAD favours fresh approaches — assessors prioritise projects that offer something new to the industry.</div>
+      <div class="opts">
+        <button class="opt" data-val="yes" data-score="2"><span class="dot"></span>Yes — we'd welcome a new approach</button>
+        <button class="opt" data-val="maybe" data-score="1"><span class="dot"></span>Possibly — depends on the design and cost</button>
+        <button class="opt" data-val="no" data-score="0"><span class="dot"></span>No — we have a specific design already locked in</button>
       </div>
     </div>
 
-    <!-- Q6 -->
-    <div class="question-block" data-q="5">
-      <div class="q-number">Question 6 of 8</div>
-      <div class="q-text">Can you provide full feedlot closeout data?</div>
-      <div class="q-hint">This includes animal performance, carcase grading and economic records — a core requirement for both Gold and Silver Standard.</div>
-      <div class="options">
-        <button class="option" data-value="yes" data-score="2"><span class="option-dot"></span>Yes — we collect and can provide this data</button>
-        <button class="option" data-value="partial" data-score="1"><span class="option-dot"></span>Some of it — could work toward full compliance</button>
-        <button class="option" data-value="no" data-score="0"><span class="option-dot"></span>No — we don't currently collect this data</button>
+    <div class="qblock" id="q5">
+      <div class="qnum">Question 6 of 8</div>
+      <div class="qtxt">Can you provide full feedlot closeout data?</div>
+      <div class="qhint">Including animal performance, carcase grading and economic records — required for both Gold and Silver Standard.</div>
+      <div class="opts">
+        <button class="opt" data-val="yes" data-score="2"><span class="dot"></span>Yes — we collect and can provide this data</button>
+        <button class="opt" data-val="partial" data-score="1"><span class="dot"></span>Some of it — could work toward full compliance</button>
+        <button class="opt" data-val="no" data-score="0"><span class="dot"></span>No — we don't currently collect this data</button>
       </div>
     </div>
 
-    <!-- Q7 -->
-    <div class="question-block" data-q="6">
-      <div class="q-number">Question 7 of 8</div>
-      <div class="q-text">Would you share your research results openly with the broader feedlot industry?</div>
-      <div class="q-hint">This is a key assessment criterion — participants are expected to contribute learnings so the whole industry benefits.</div>
-      <div class="options">
-        <button class="option" data-value="yes" data-score="2"><span class="option-dot"></span>Yes — happy to contribute to industry knowledge</button>
-        <button class="option" data-value="unsure" data-score="1"><span class="option-dot"></span>Unsure — would want to understand what's involved</button>
-        <button class="option" data-value="no" data-score="0"><span class="option-dot"></span>No — we prefer to keep our data private</button>
+    <div class="qblock" id="q6">
+      <div class="qnum">Question 7 of 8</div>
+      <div class="qtxt">Would you share your research results with the broader feedlot industry?</div>
+      <div class="qhint">This is a key assessment criterion — participants must share learnings so the whole industry benefits.</div>
+      <div class="opts">
+        <button class="opt" data-val="yes" data-score="2"><span class="dot"></span>Yes — happy to contribute to industry knowledge</button>
+        <button class="opt" data-val="unsure" data-score="1"><span class="dot"></span>Unsure — would want to understand what's involved</button>
+        <button class="opt" data-val="no" data-score="0"><span class="dot"></span>No — we prefer to keep our data private</button>
       </div>
     </div>
 
-    <!-- Q8 -->
-    <div class="question-block" data-q="7">
-      <div class="q-number">Question 8 of 8</div>
-      <div class="q-text">Which research tier suits your operation?</div>
-      <div class="q-hint">Gold Standard ($2.46/head/day) requires a randomised controlled trial and peer-reviewed publication. Silver Standard ($1.97/head/day) is a simpler commercial evaluation.</div>
-      <div class="options">
-        <button class="option" data-value="gold" data-score="2"><span class="option-dot"></span>Gold Standard — rigorous scientific trial with publication</button>
-        <button class="option" data-value="silver" data-score="2"><span class="option-dot"></span>Silver Standard — commercially focused evaluation</button>
-        <button class="option" data-value="unsure" data-score="1"><span class="option-dot"></span>Not sure yet — need more information</button>
+    <div class="qblock" id="q7">
+      <div class="qnum">Question 8 of 8</div>
+      <div class="qtxt">Which research tier suits your operation?</div>
+      <div class="qhint">Gold Standard ($2.46/head/day) — randomised controlled trial + peer-reviewed publication. Silver Standard ($1.97/head/day) — simpler commercial evaluation.</div>
+      <div class="opts">
+        <button class="opt" data-val="gold" data-score="2"><span class="dot"></span>Gold Standard — rigorous scientific trial</button>
+        <button class="opt" data-val="silver" data-score="2"><span class="dot"></span>Silver Standard — commercially focused evaluation</button>
+        <button class="opt" data-val="unsure" data-score="1"><span class="dot"></span>Not sure yet — need more information</button>
       </div>
     </div>
 
     <!-- RESULT -->
-    <div class="result-block" id="result-block">
-      <div class="result-header">
-        <div class="result-icon" id="result-icon"></div>
-        <div class="result-label" id="result-label"></div>
-        <div class="result-title" id="result-title"></div>
-        <div class="result-body" id="result-body"></div>
+    <div class="rblock" id="result">
+      <div class="rhdr">
+        <div class="rico" id="rico"></div>
+        <div class="rlbl" id="rlbl"></div>
+        <div class="rtitle" id="rtitle"></div>
+        <div class="rbody" id="rbody"></div>
       </div>
 
-      <!-- EOI FORM (shown for high/medium) -->
-      <div class="eoi-form-wrap" id="eoi-form-wrap" style="display:none;">
+      <!-- EOI FORM -->
+      <div class="eoi-wrap" id="eoi-wrap" style="display:none">
         <h3>Lodge your Expression of Interest</h3>
-        <p class="eoi-sub">Fill in your details below. We'll send your EOI directly to MLA and notify Rob at Entegra — who can guide you through the next steps.</p>
-
-        <div id="eoi-form-inner">
-
-          <div class="form-section-title">Your Details</div>
-          <div class="form-grid">
-            <div class="form-group" id="fg-firstname">
-              <label>First name <span>*</span></label>
-              <input type="text" id="f-firstname" placeholder="e.g. John">
-              <div class="error-msg">Required</div>
-            </div>
-            <div class="form-group" id="fg-lastname">
-              <label>Last name <span>*</span></label>
-              <input type="text" id="f-lastname" placeholder="e.g. Smith">
-              <div class="error-msg">Required</div>
-            </div>
-            <div class="form-group" id="fg-mobile">
-              <label>Mobile <span>*</span></label>
-              <input type="tel" id="f-mobile" placeholder="04XX XXX XXX">
-              <div class="error-msg">Required</div>
-            </div>
-            <div class="form-group" id="fg-email">
-              <label>Email <span>*</span></label>
-              <input type="email" id="f-email" placeholder="name@property.com.au">
-              <div class="error-msg">Required — must be a valid email</div>
+        <p class="eoi-sub">Fill in your details below. Your EOI will be sent to MLA and Rob at Entegra will be notified to help guide your application.</p>
+        <div id="eoi-inner">
+          <div class="sec-title">Your Details</div>
+          <div class="fgrid">
+            <div class="fg" id="fg-fn"><label>First name<span>*</span></label><input type="text" id="fn" placeholder="e.g. John"><div class="emsg">Required</div></div>
+            <div class="fg" id="fg-ln"><label>Last name<span>*</span></label><input type="text" id="ln" placeholder="e.g. Smith"><div class="emsg">Required</div></div>
+            <div class="fg" id="fg-mob"><label>Mobile<span>*</span></label><input type="tel" id="mob" placeholder="04XX XXX XXX"><div class="emsg">Required</div></div>
+            <div class="fg" id="fg-eml"><label>Email<span>*</span></label><input type="email" id="eml" placeholder="name@property.com.au"><div class="emsg">Required — must be valid email</div></div>
+          </div>
+          <div class="sec-title">Your Feedlot</div>
+          <div class="fgrid">
+            <div class="fg s2" id="fg-fln"><label>Feedlot name<span>*</span></label><input type="text" id="fln" placeholder="e.g. Smithfield Feedlot"><div class="emsg">Required</div></div>
+            <div class="fg s2" id="fg-adr"><label>Feedlot site address<span>*</span></label><input type="text" id="adr" placeholder="Street address, Town, State"><div class="emsg">Required</div></div>
+            <div class="fg" id="fg-nfas"><label>NFAS Accredited<span>*</span></label>
+              <select id="nfas"><option value="">Select...</option><option>Yes</option><option>In progress</option><option>No</option></select>
+              <div class="emsg">Required</div></div>
+            <div class="fg" id="fg-tier"><label>Preferred project tier<span>*</span></label>
+              <select id="tier"><option value="">Select...</option><option value="Gold Standard – $2.46/head/day">Gold Standard – $2.46/head/day</option><option value="Silver Standard – $1.97/head/day">Silver Standard – $1.97/head/day</option><option value="Unsure">Unsure — need more info</option></select>
+              <div class="emsg">Required</div></div>
+          </div>
+          <div class="sec-title">Study Details</div>
+          <div class="fgrid">
+            <div class="fg s2" id="fg-obj"><label>Brief R&D objectives<span>*</span></label>
+              <textarea id="obj" placeholder="Describe what you want to study and why it matters (max 200 words)..." oninput="wcount(this)"></textarea>
+              <div class="wc"><span id="wc">0</span> / 200 words</div>
+              <div class="emsg">Required</div></div>
+            <div class="fg"><label>Shade/shelter type</label>
+              <select id="shade"><option value="">Select...</option><option>Shade</option><option>Partial Pen Shelter</option><option>Full Pen Shelter</option><option>Not yet decided</option></select></div>
+            <div class="fg"><label>Study duration</label>
+              <select id="dur"><option value="2 Years">2 Years (standard)</option><option value="Other">Other</option></select></div>
+            <div class="fg"><label>Total head in study</label><input type="number" id="hd" placeholder="e.g. 2000" min="1"></div>
+            <div class="fg"><label>Pen size (m × m)</label><input type="text" id="pen" placeholder="e.g. 50 x 30"></div>
+          </div>
+          <div class="sec-title">Regulatory & Consent</div>
+          <div class="fg">
+            <label>Regulatory approvals will be obtained prior to commencement<span>*</span></label>
+            <div class="radio-g">
+              <label class="ri"><input type="radio" name="reg" value="Yes"> Yes</label>
+              <label class="ri"><input type="radio" name="reg" value="No"> No / Not sure yet</label>
             </div>
           </div>
-
-          <div class="form-section-title">Your Feedlot</div>
-          <div class="form-grid">
-            <div class="form-group span2" id="fg-feedlotname">
-              <label>Feedlot name <span>*</span></label>
-              <input type="text" id="f-feedlotname" placeholder="e.g. Smithfield Feedlot">
-              <div class="error-msg">Required</div>
-            </div>
-            <div class="form-group span2" id="fg-address">
-              <label>Feedlot site address <span>*</span></label>
-              <input type="text" id="f-address" placeholder="Street address, Town, State">
-              <div class="error-msg">Required</div>
-            </div>
-            <div class="form-group" id="fg-nfas">
-              <label>NFAS Accredited <span>*</span></label>
-              <select id="f-nfas">
-                <option value="">Select...</option>
-                <option value="Yes">Yes</option>
-                <option value="In progress">In progress</option>
-                <option value="No">No</option>
-              </select>
-              <div class="error-msg">Required</div>
-            </div>
-            <div class="form-group" id="fg-tier">
-              <label>Preferred project tier <span>*</span></label>
-              <select id="f-tier">
-                <option value="">Select...</option>
-                <option value="Gold Standard – $2.46/head/day">Gold Standard – $2.46/head/day</option>
-                <option value="Silver Standard – $1.97/head/day">Silver Standard – $1.97/head/day</option>
-                <option value="Unsure">Unsure — need more info</option>
-              </select>
-              <div class="error-msg">Required</div>
-            </div>
-          </div>
-
-          <div class="form-section-title">Study Details</div>
-          <div class="form-grid">
-            <div class="form-group span2" id="fg-objectives">
-              <label>Brief outline of your R&D objectives <span>*</span></label>
-              <textarea id="f-objectives" placeholder="Describe what you want to study and why it matters for your operation (max 200 words)..." maxlength="1400" oninput="updateWordCount(this)"></textarea>
-              <div class="word-count"><span id="wc">0</span> / 200 words</div>
-              <div class="error-msg">Required</div>
-            </div>
-          </div>
-
-          <div class="form-grid">
-            <div class="form-group" id="fg-shade">
-              <label>Shade/shelter type</label>
-              <select id="f-shade">
-                <option value="">Select...</option>
-                <option value="Shade">Shade</option>
-                <option value="Partial Pen Shelter">Partial Pen Shelter</option>
-                <option value="Full Pen Shelter">Full Pen Shelter</option>
-                <option value="Not yet decided">Not yet decided</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Study duration</label>
-              <select id="f-duration">
-                <option value="2 Years">2 Years (standard)</option>
-                <option value="Other">Other</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Total head in study</label>
-              <input type="number" id="f-headcount" placeholder="e.g. 2000" min="1">
-            </div>
-            <div class="form-group">
-              <label>Pen size (m × m)</label>
-              <input type="text" id="f-pensize" placeholder="e.g. 50 x 30">
-            </div>
-          </div>
-
-          <div class="form-section-title">Regulatory & Consent</div>
-          <div class="form-group">
-            <label>Regulatory approvals will be obtained prior to project commencement <span>*</span></label>
-            <div class="radio-group">
-              <label class="radio-item"><input type="radio" name="regulatory" value="Yes"> Yes</label>
-              <label class="radio-item"><input type="radio" name="regulatory" value="No"> No / Not sure yet</label>
-            </div>
-          </div>
-
-          <div class="submit-area">
-            <label class="terms" id="terms-label">
-              <input type="checkbox" id="terms-check">
-              I understand this information will be shared with MLA and with Rob Sobey at Entegra to assist with my RAAD application.
-            </label>
-            <button class="btn-submit" id="btn-submit" onclick="submitEOI()">
-              <span id="submit-text">Submit my Expression of Interest</span>
-              <span class="spinner" id="submit-spinner"></span>
+          <div style="margin-top:20px">
+            <label class="terms" id="tl"><input type="checkbox" id="tc"> I understand this information will be shared with MLA and Rob Sobey at Entegra to assist with my RAAD application.</label>
+            <button class="btn-sub" id="bsub">
+              <span id="btxt">Submit my Expression of Interest</span>
+              <span class="spin" id="bspin"></span>
             </button>
-            <p style="font-size:11px;color:var(--text-light);text-align:center;margin-top:10px;">Your details are sent securely. MLA will contact you within 6 weeks.</p>
+            <p style="font-size:11px;color:var(--tl);text-align:center;margin-top:9px">Your details are sent securely. MLA typically responds within 6 weeks.</p>
           </div>
         </div>
-
-        <!-- Success -->
-        <div class="success-block" id="success-block">
-          <div class="success-icon">🎉</div>
+        <div class="succ" id="succ">
+          <div class="succ-ico">🎉</div>
           <h3>EOI submitted successfully</h3>
-          <p>Your Expression of Interest has been sent to MLA and Rob at Entegra has been notified. MLA typically responds within 6 weeks — often with a phone call or site visit.</p>
-          <div class="contact-card">
-            <div class="contact-card-label">Your Entegra contact</div>
-            <div class="contact-name">Rob Sobey</div>
-            <div class="contact-role">Entegra — Feedlot Industry Specialist</div>
-            <div class="contact-links">
-              <a href="/cdn-cgi/l/email-protection#50223f327e2310353e24353722317e333f3d7e3125" class="contact-link">✉ <span class="__cf_email__" data-cfemail="b8cad7da96cbf8ddd6ccdddfcad996dbd7d596d9cd">[email&#160;protected]</span></a>
-              <a href="tel:+61483986590" class="contact-link">📞 0483 986 590</a>
+          <p>Your Expression of Interest has been sent. MLA will be in touch within 6 weeks — often with a call or site visit. Rob at Entegra has also been notified and can help you prepare.</p>
+          <div class="cc">
+            <div class="cc-lbl">Your Entegra contact</div>
+            <div class="cc-name">Rob Sobey</div>
+            <div class="cc-role">Entegra — Feedlot Industry Specialist</div>
+            <div class="cc-links">
+              <a href="mailto:rob.s@entegra.com.au" class="cc-link">✉ rob.s@entegra.com.au</a>
+              <a href="tel:+61483986590" class="cc-link">📞 0483 986 590</a>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- NOT ELIGIBLE actions -->
-      <div class="not-eligible-actions" id="not-eligible-actions" style="display:none;">
-        <div class="contact-card">
-          <div class="contact-card-label">Talk to Rob at Entegra</div>
-          <div class="contact-name">Rob Sobey</div>
-          <div class="contact-role">Entegra — Feedlot Industry Specialist</div>
-          <div class="contact-links">
-            <a href="/cdn-cgi/l/email-protection#bbc9d4d995c8fbded5cfdedcc9da95d8d4d695dace" class="contact-link">✉ <span class="__cf_email__" data-cfemail="6a18050844192a0f041e0f0d180b44090507440b1f">[email&#160;protected]</span></a>
-            <a href="tel:+61483986590" class="contact-link">📞 0483 986 590</a>
+      <!-- NOT ELIGIBLE -->
+      <div class="not-elig" id="not-elig" style="display:none">
+        <div class="cc">
+          <div class="cc-lbl">Talk to Rob at Entegra</div>
+          <div class="cc-name">Rob Sobey</div>
+          <div class="cc-role">Entegra — Feedlot Industry Specialist</div>
+          <div class="cc-links">
+            <a href="mailto:rob.s@entegra.com.au" class="cc-link">✉ rob.s@entegra.com.au</a>
+            <a href="tel:+61483986590" class="cc-link">📞 0483 986 590</a>
           </div>
         </div>
-        <div class="or-divider">or</div>
-        <a href="https://www.mla.com.au/research-and-development/feedlot/feedlot-research-for-accelerated-adoption-raad-program" target="_blank" class="btn-mla-eoi">Learn about future RAAD rounds →</a>
+        <div class="or-div">or</div>
+        <a href="https://www.mla.com.au/research-and-development/feedlot/feedlot-research-for-accelerated-adoption-raad-program" target="_blank" class="btn-mla">Learn about future RAAD rounds →</a>
       </div>
 
-      <button class="restart-btn" onclick="restart()">Start again</button>
+      <button class="restart" id="rbtn">Start again</button>
     </div>
 
-    <!-- NAV -->
-    <div class="nav-row" id="nav-row">
-      <button class="btn-back" id="btn-back" onclick="goBack()" style="visibility:hidden">← Back</button>
-      <button class="btn-next" id="btn-next" onclick="goNext()" disabled>Next →</button>
+    <div class="nav" id="nav">
+      <button class="btn-back" id="bbk" style="visibility:hidden">← Back</button>
+      <button class="btn-next" id="bnx" disabled>Next →</button>
     </div>
-
-  </div><!-- /card-body -->
-
-  <div class="card-footer">
-    Based on the MLA Feedlot RAAD Program guidelines · mla.com.au · Powered by Entegra
   </div>
-</div><!-- /card -->
-</div><!-- /wrapper -->
+  <div class="foot">Based on MLA Feedlot RAAD Program guidelines · mla.com.au · Powered by Entegra</div>
+</div>
+</div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-  // ── CONFIG ──────────────────────────────────────────────
-  const FORMSPREE_ID = 'xqeyrpek';
-  const SHEETS_WEBHOOK = 'https://script.google.com/macros/s/AKfycbz4DSZzPIBEi8kFOFOFYhS7uNDj441MZVYu8ONOYDp_zurlZB_xRCcct6ZR75i3PK45/exec';
-  // ────────────────────────────────────────────────────────
+<script>
+(function(){
+  var FSPREE = 'xqeyrpek';
+  var GSHEET = 'https://script.google.com/macros/s/AKfycbz4DSZzPIBEi8kFOFOFYhS7uNDj441MZVYu8ONOYDp_zurlZB_xRCcct6ZR75i3PK45/exec';
+  var TQ = 8, cur = 0, scores = [], answers = [];
 
-  const totalQ = 8;
-  let current = 0;
-  let scores = [];
-  let answers = [];
+  function $(id){ return document.getElementById(id); }
 
-  function updateProgress() {
-    const pct = Math.round((current / totalQ) * 100);
-    document.getElementById('progress-fill').style.width = pct + '%';
-    document.getElementById('progress-pct').textContent = pct + '%';
-    document.getElementById('progress-text').textContent =
-      current < totalQ ? `Question ${current + 1} of ${totalQ}` : 'Complete';
+  function updProg(){
+    var p = Math.round(cur/TQ*100);
+    $('pfill').style.width = p+'%';
+    $('ppct').textContent = p+'%';
+    $('ptxt').textContent = cur < TQ ? 'Question '+(cur+1)+' of '+TQ : 'Complete';
   }
 
-  // Event delegation for robust click handling across all browsers
-  document.addEventListener('click', function(e) {
-    const btn = e.target.closest('.option');
-    if (!btn) return;
-    const block = btn.closest('.question-block');
-    if (!block) return;
-    block.querySelectorAll('.option').forEach(b => b.classList.remove('selected'));
-    btn.classList.add('selected');
-    document.getElementById('btn-next').disabled = false;
+  // Click handling via event delegation on body
+  document.body.addEventListener('click', function(e){
+    // Option buttons
+    var opt = e.target;
+    while(opt && opt !== document.body){
+      if(opt.classList && opt.classList.contains('opt')) break;
+      opt = opt.parentNode;
+    }
+    if(opt && opt.classList && opt.classList.contains('opt')){
+      var block = opt.parentNode;
+      while(block && !block.classList.contains('qblock')) block = block.parentNode;
+      if(block){
+        var btns = block.querySelectorAll('.opt');
+        for(var i=0;i<btns.length;i++) btns[i].classList.remove('sel');
+        opt.classList.add('sel');
+        $('bnx').disabled = false;
+      }
+    }
+    // Next button
+    if(e.target === $('bnx') || (e.target.parentNode === $('bnx'))){
+      goNext();
+    }
+    // Back button
+    if(e.target === $('bbk') || (e.target.parentNode === $('bbk'))){
+      goBack();
+    }
+    // Submit button
+    if(e.target === $('bsub') || e.target === $('btxt')){
+      submitEOI();
+    }
+    // Restart button
+    if(e.target === $('rbtn')){
+      restart();
+    }
   });
 
-  function goNext() {
-    const block = document.querySelector(`.question-block[data-q="${current}"]`);
-    const selected = block.querySelector('.option.selected');
-    if (!selected) return;
-    scores[current] = parseInt(selected.dataset.score);
-    answers[current] = selected.dataset.value;
+  function goNext(){
+    var block = $('q'+cur);
+    if(!block) return;
+    var sel = block.querySelector('.opt.sel');
+    if(!sel) return;
+    scores[cur] = parseInt(sel.getAttribute('data-score'));
+    answers[cur] = sel.getAttribute('data-val');
     block.classList.remove('active');
-    current++;
-    if (current < totalQ) {
-      document.querySelector(`.question-block[data-q="${current}"]`).classList.add('active');
-      document.getElementById('btn-next').disabled = true;
-      document.getElementById('btn-back').style.visibility = 'visible';
-      updateProgress();
+    cur++;
+    if(cur < TQ){
+      $('q'+cur).classList.add('active');
+      $('bnx').disabled = true;
+      $('bbk').style.visibility = 'visible';
+      updProg();
     } else {
       showResult();
     }
   }
 
-  function goBack() {
-    if (current === 0) return;
-    const cur = document.querySelector(`.question-block[data-q="${current}"]`);
-    if (cur) cur.classList.remove('active');
-    current--;
-    document.querySelector(`.question-block[data-q="${current}"]`).classList.add('active');
-    document.getElementById('btn-next').disabled = false;
-    document.getElementById('btn-back').style.visibility = current > 0 ? 'visible' : 'hidden';
-    updateProgress();
+  function goBack(){
+    if(cur === 0) return;
+    var cb = $('q'+cur);
+    if(cb) cb.classList.remove('active');
+    cur--;
+    $('q'+cur).classList.add('active');
+    $('bnx').disabled = false;
+    $('bbk').style.visibility = cur > 0 ? 'visible' : 'hidden';
+    updProg();
   }
 
-  function showResult() {
-    document.getElementById('nav-row').style.display = 'none';
-    document.getElementById('progress-fill').style.width = '100%';
-    document.getElementById('progress-pct').textContent = '100%';
-    document.getElementById('progress-text').textContent = 'Complete';
+  function showResult(){
+    $('nav').style.display = 'none';
+    $('pfill').style.width = '100%';
+    $('ppct').textContent = '100%';
+    $('ptxt').textContent = 'Complete';
 
-    const total = scores.reduce((a,b) => a+b, 0);
-    const maxScore = 16;
-    const pct = total / maxScore;
+    var total = scores.reduce(function(a,b){return a+b;},0);
+    var pct = total/16;
+    var notFeedlot = answers[0]==='grazing'||answers[0]==='sheep';
+    var notNFAS = answers[1]==='no';
+    var noShare = answers[6]==='no';
 
-    const notFeedlot = answers[0] === 'grazing' || answers[0] === 'sheep';
-    const notNFAS = answers[1] === 'no';
-    const noDataShare = answers[6] === 'no';
+    var ico=$('rico'),lbl=$('rlbl'),ttl=$('rtitle'),bdy=$('rbody');
+    var eoiW=$('eoi-wrap'), notW=$('not-elig');
 
-    const icon = document.getElementById('result-icon');
-    const label = document.getElementById('result-label');
-    const title = document.getElementById('result-title');
-    const body = document.getElementById('result-body');
-    const eoiWrap = document.getElementById('eoi-form-wrap');
-    const notEligWrap = document.getElementById('not-eligible-actions');
+    // pre-fill selects
+    var tierMap={gold:'Gold Standard – $2.46/head/day',silver:'Silver Standard – $1.97/head/day',unsure:'Unsure'};
+    var nfasMap={yes:'Yes',inprogress:'In progress',no:'No'};
+    var tv=tierMap[answers[7]]||''; if(tv) $('tier').value=tv;
+    var nv=nfasMap[answers[1]]||''; if(nv) $('nfas').value=nv;
 
-    // Pre-fill tier selector from Q8 answer
-    const tierMap = { gold:'Gold Standard – $2.46/head/day', silver:'Silver Standard – $1.97/head/day', unsure:'Unsure' };
-    const tierVal = tierMap[answers[7]] || '';
-    if (tierVal) document.getElementById('f-tier').value = tierVal;
-
-    // Pre-fill NFAS from Q2
-    const nfasMap = { yes:'Yes', inprogress:'In progress', no:'No' };
-    document.getElementById('f-nfas').value = nfasMap[answers[1]] || '';
-
-    if (notFeedlot) {
-      icon.textContent = '🌾'; icon.className = 'result-icon low';
-      label.textContent = 'Not eligible — current round'; label.className = 'result-label low';
-      title.textContent = 'RAAD is currently feedlot-specific';
-      body.textContent = 'The current RAAD investment round is focused on beef feedlot operations. However, MLA has confirmed future rounds will cover broader livestock categories including animal health, productivity and sustainability. Rob at Entegra can keep you informed of upcoming opportunities.';
-      notEligWrap.style.display = 'block';
-    } else if (notNFAS) {
-      icon.textContent = '⚠️'; icon.className = 'result-icon medium';
-      label.textContent = 'Accreditation required'; label.className = 'result-label medium';
-      title.textContent = 'NFAS accreditation is needed to participate';
-      body.textContent = 'RAAD requires feedlots to hold NFAS accreditation. If you\'re not currently accredited, it\'s worth starting that process — and Rob at Entegra can help you understand what\'s involved and timeline expectations.';
-      notEligWrap.style.display = 'block';
-    } else if (noDataShare) {
-      icon.textContent = '⚠️'; icon.className = 'result-icon medium';
-      label.textContent = 'One barrier to address'; label.className = 'result-label medium';
-      title.textContent = 'Data sharing is a core requirement';
-      body.textContent = 'RAAD requires all participants to share results openly with the broader industry — it\'s a key assessment criterion. It\'s worth having a conversation with Rob about what data sharing actually involves before ruling it out. Many operators find it less onerous than expected.';
-      notEligWrap.style.display = 'block';
-    } else if (pct >= 0.72) {
-      icon.textContent = '✅'; icon.className = 'result-icon high';
-      label.textContent = 'Strong eligibility'; label.className = 'result-label high';
-      title.textContent = 'Your operation looks like a strong fit for RAAD';
-      body.textContent = 'Based on your answers, your feedlot aligns well with what MLA is looking for. With up to $1.8M in co-funding available, the next step is lodging an Expression of Interest. Fill in your details below and we\'ll handle the rest.';
-      eoiWrap.style.display = 'block';
-    } else if (pct >= 0.5) {
-      icon.textContent = '🔎'; icon.className = 'result-icon medium';
-      label.textContent = 'Possible fit — worth exploring'; label.className = 'result-label medium';
-      title.textContent = 'You may qualify with the right project design';
-      body.textContent = 'Your operation has some strong signals. A few areas may need clarification, but it\'s absolutely worth lodging an EOI and letting MLA assess. Fill in your details below and Rob will reach out to help shape your application.';
-      eoiWrap.style.display = 'block';
+    if(notFeedlot){
+      ico.textContent='🌾'; ico.className='rico lo';
+      lbl.textContent='Not eligible — current round'; lbl.className='rlbl lo';
+      ttl.textContent='RAAD is currently feedlot-specific';
+      bdy.textContent='The current RAAD round focuses on beef feedlot operations. Future rounds will cover broader livestock categories. Rob at Entegra can keep you informed of upcoming opportunities.';
+      notW.style.display='block';
+    } else if(notNFAS){
+      ico.textContent='⚠️'; ico.className='rico md';
+      lbl.textContent='Accreditation required'; lbl.className='rlbl md';
+      ttl.textContent='NFAS accreditation is needed to participate';
+      bdy.textContent='RAAD requires NFAS accreditation. If you\'re not currently accredited, Rob at Entegra can help you understand the process and timelines.';
+      notW.style.display='block';
+    } else if(noShare){
+      ico.textContent='⚠️'; ico.className='rico md';
+      lbl.textContent='One barrier to address'; lbl.className='rlbl md';
+      ttl.textContent='Data sharing is a core requirement';
+      bdy.textContent='RAAD requires participants to share results openly with the industry. It\'s worth a conversation with Rob about what\'s actually involved — many operators find it less onerous than expected.';
+      notW.style.display='block';
+    } else if(pct>=0.72){
+      ico.textContent='✅'; ico.className='rico hi';
+      lbl.textContent='Strong eligibility'; lbl.className='rlbl hi';
+      ttl.textContent='Your operation looks like a strong fit for RAAD';
+      bdy.textContent='Based on your answers, your feedlot aligns well with what MLA is looking for. With up to $1.8M in co-funding available, the next step is lodging an EOI. Fill in your details below.';
+      eoiW.style.display='block';
+    } else if(pct>=0.5){
+      ico.textContent='🔎'; ico.className='rico md';
+      lbl.textContent='Possible fit — worth exploring'; lbl.className='rlbl md';
+      ttl.textContent='You may qualify with the right project design';
+      bdy.textContent='Your operation has some strong signals. A few areas may need clarification, but it\'s worth lodging an EOI. Fill in your details below and Rob will help shape your application.';
+      eoiW.style.display='block';
     } else {
-      icon.textContent = '📋'; icon.className = 'result-icon low';
-      label.textContent = 'A few things to work through'; label.className = 'result-label low';
-      title.textContent = 'Not quite there yet — but let\'s talk';
-      body.textContent = 'Based on your answers there are a couple of gaps to address before applying. That doesn\'t mean it\'s off the table. Reach out to Rob at Entegra for a quick conversation — future RAAD rounds will also cover automation, animal health and sustainability.';
-      notEligWrap.style.display = 'block';
+      ico.textContent='📋'; ico.className='rico lo';
+      lbl.textContent='A few things to work through'; lbl.className='rlbl lo';
+      ttl.textContent='Not quite there yet — but let\'s talk';
+      bdy.textContent='There are a couple of gaps to address before applying. Reach out to Rob at Entegra — future RAAD rounds will also cover automation, animal health and sustainability.';
+      notW.style.display='block';
     }
 
-    document.querySelectorAll('.question-block').forEach(b => b.classList.remove('active'));
-    document.getElementById('result-block').classList.add('active');
+    for(var i=0;i<TQ;i++){ var qb=$('q'+i); if(qb) qb.classList.remove('active'); }
+    $('result').classList.add('active');
+    $('result').style.display='block';
   }
 
-  // ── WORD COUNT ────────────────────────────────────────
-  function updateWordCount(el) {
-    const words = el.value.trim() === '' ? 0 : el.value.trim().split(/\s+/).length;
-    document.getElementById('wc').textContent = words;
-    if (words > 200) el.value = el.value.trim().split(/\s+/).slice(0,200).join(' ');
+  function wcount(el){
+    var words = el.value.trim()===''?0:el.value.trim().split(/\s+/).length;
+    $('wc').textContent=words;
+    if(words>200) el.value=el.value.trim().split(/\s+/).slice(0,200).join(' ');
   }
+  window.wcount=wcount;
 
-  // ── VALIDATION ────────────────────────────────────────
-  function validate() {
-    let valid = true;
-    const required = [
-      { id:'fg-firstname', fieldId:'f-firstname', type:'text' },
-      { id:'fg-lastname',  fieldId:'f-lastname',  type:'text' },
-      { id:'fg-mobile',    fieldId:'f-mobile',    type:'text' },
-      { id:'fg-email',     fieldId:'f-email',     type:'email' },
-      { id:'fg-feedlotname', fieldId:'f-feedlotname', type:'text' },
-      { id:'fg-address',   fieldId:'f-address',   type:'text' },
-      { id:'fg-nfas',      fieldId:'f-nfas',      type:'select' },
-      { id:'fg-tier',      fieldId:'f-tier',      type:'select' },
-      { id:'fg-objectives', fieldId:'f-objectives', type:'text' },
+  function validate(){
+    var ok=true;
+    var fields=[
+      {g:'fg-fn',f:'fn',t:'text'},{g:'fg-ln',f:'ln',t:'text'},
+      {g:'fg-mob',f:'mob',t:'text'},{g:'fg-eml',f:'eml',t:'email'},
+      {g:'fg-fln',f:'fln',t:'text'},{g:'fg-adr',f:'adr',t:'text'},
+      {g:'fg-nfas',f:'nfas',t:'sel'},{g:'fg-tier',f:'tier',t:'sel'},
+      {g:'fg-obj',f:'obj',t:'text'}
     ];
-    required.forEach(r => {
-      const el = document.getElementById(r.fieldId);
-      const fg = document.getElementById(r.id);
-      let ok = el.value.trim() !== '';
-      if (r.type === 'email' && ok) ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value);
-      fg.classList.toggle('has-error', !ok);
-      if (!ok) valid = false;
+    fields.forEach(function(r){
+      var el=$(r.f), fg=$(r.g);
+      var v=el.value.trim()!=='';
+      if(r.t==='email'&&v) v=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(el.value);
+      fg.classList.toggle('err',!v);
+      if(!v) ok=false;
     });
-    if (!document.getElementById('terms-check').checked) {
-      document.getElementById('terms-label').style.color = 'var(--error)';
-      valid = false;
-    } else {
-      document.getElementById('terms-label').style.color = '';
-    }
-    return valid;
+    if(!$('tc').checked){ $('tl').style.color='var(--er)'; ok=false; }
+    else $('tl').style.color='';
+    return ok;
   }
 
-  // ── SUBMIT ────────────────────────────────────────────
-  async function submitEOI() {
-    if (!validate()) return;
-
-    const btn = document.getElementById('btn-submit');
-    const txt = document.getElementById('submit-text');
-    const spin = document.getElementById('submit-spinner');
-    btn.disabled = true;
-    txt.textContent = 'Submitting...';
-    spin.style.display = 'inline-block';
-
-    const regulatory = document.querySelector('input[name="regulatory"]:checked');
-
-    const payload = {
-      first_name:     document.getElementById('f-firstname').value.trim(),
-      last_name:      document.getElementById('f-lastname').value.trim(),
-      mobile:         document.getElementById('f-mobile').value.trim(),
-      email:          document.getElementById('f-email').value.trim(),
-      feedlot_name:   document.getElementById('f-feedlotname').value.trim(),
-      address:        document.getElementById('f-address').value.trim(),
-      nfas:           document.getElementById('f-nfas').value,
-      tier:           document.getElementById('f-tier').value,
-      objectives:     document.getElementById('f-objectives').value.trim(),
-      shade_type:     document.getElementById('f-shade').value,
-      duration:       document.getElementById('f-duration').value,
-      head_count:     document.getElementById('f-headcount').value,
-      pen_size:       document.getElementById('f-pensize').value,
-      regulatory:     regulatory ? regulatory.value : 'Not answered',
-      eligibility_score: scores.reduce((a,b)=>a+b,0),
-      submitted_at:   new Date().toLocaleString('en-AU'),
-      // email recipient for Formspree
-      _replyto:       document.getElementById('f-email').value.trim(),
-      _subject:       `New RAAD EOI — ${document.getElementById('f-feedlotname').value.trim()}`,
+  function submitEOI(){
+    if(!validate()) return;
+    $('bsub').disabled=true;
+    $('btxt').textContent='Submitting...';
+    $('bspin').style.display='inline-block';
+    var reg=document.querySelector('input[name="reg"]:checked');
+    var payload={
+      first_name:$('fn').value.trim(),
+      last_name:$('ln').value.trim(),
+      mobile:$('mob').value.trim(),
+      email:$('eml').value.trim(),
+      feedlot_name:$('fln').value.trim(),
+      address:$('adr').value.trim(),
+      nfas:$('nfas').value,
+      tier:$('tier').value,
+      objectives:$('obj').value.trim(),
+      shade_type:$('shade').value,
+      duration:$('dur').value,
+      head_count:$('hd').value,
+      pen_size:$('pen').value,
+      regulatory:reg?reg.value:'Not answered',
+      eligibility_score:scores.reduce(function(a,b){return a+b;},0),
+      submitted_at:new Date().toLocaleString('en-AU'),
+      _replyto:$('eml').value.trim(),
+      _subject:'New RAAD EOI — '+$('fln').value.trim()
     };
-
-    let formspreeOk = false;
-    let sheetsOk = false;
-
-    // ── Formspree ──
-    try {
-      const res = await fetch(`https://formspree.io/f/${FORMSPREE_ID}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      formspreeOk = res.ok;
-    } catch(e) { console.warn('Formspree error', e); }
-
-    // ── Google Sheets ──
-    try {
-      await fetch(SHEETS_WEBHOOK, {
-        method: 'POST',
-        mode: 'no-cors',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      sheetsOk = true;
-    } catch(e) { console.warn('Sheets error', e); }
-
-    // Show success regardless (no-cors means we can't read response from Sheets)
-    document.getElementById('eoi-form-inner').style.display = 'none';
-    document.getElementById('success-block').classList.add('active');
+    var done=0;
+    function finish(){ done++; if(done>=2){ $('eoi-inner').style.display='none'; $('succ').classList.add('active'); } }
+    fetch('https://formspree.io/f/'+FSPREE,{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(payload)}).then(finish).catch(finish);
+    fetch(GSHEET,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}).then(finish).catch(finish);
   }
 
-  // ── RESTART ───────────────────────────────────────────
-  function restart() {
-    current = 0; scores = []; answers = [];
-    document.querySelectorAll('.option').forEach(b => b.classList.remove('selected'));
-    document.getElementById('result-block').classList.remove('active');
-    document.getElementById('eoi-form-wrap').style.display = 'none';
-    document.getElementById('not-eligible-actions').style.display = 'none';
-    document.getElementById('success-block').classList.remove('active');
-    document.getElementById('eoi-f
+  function restart(){
+    cur=0; scores=[]; answers=[];
+    document.querySelectorAll('.opt').forEach(function(b){b.classList.remove('sel');});
+    $('result').classList.remove('active');
+    $('result').style.display='none';
+    $('eoi-wrap').style.display='none';
+    $('not-elig').style.display='none';
+    $('succ').classList.remove('active');
+    $('eoi-inner').style.display='block';
+    $('bsub').disabled=false;
+    $('btxt').textContent='Submit my Expression of Interest';
+    $('bspin').style.display='none';
+    $('nav').style.display='flex';
+    $('bnx').disabled=true;
+    $('bbk').style.visibility='hidden';
+    $('q0').classList.add('active');
+    updProg();
+  }
+
+  updProg();
+})();
+</script>
+</body>
+</html>
