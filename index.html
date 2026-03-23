@@ -241,7 +241,7 @@ body{font-family:'Mulish',sans-serif;background:#e8f5ec;color:var(--tx);min-heig
     <div class="qblock" id="q9">
       <div class="qnum">Question 10 of 10</div>
       <div class="qtxt">How involved would you want to be in the research process?</div>
-      <div class="qhint">Cattle: Gold Standard $2.46/head/day · Silver Standard $1.97/head/day. Sheep &amp; lamb: Gold Standard $0.25/head/day · Silver Standard $0.20/head/day. Both tiers require a research protocol and data collection.</div>
+      <div class="qhint">Gold Standard ($2.46/head/day) — full randomised trial + peer-reviewed publication. Silver Standard ($1.97/head/day) — practical commercial evaluation.</div>
       <div class="opts">
         <button class="opt" data-val="gold" data-score="3"><span class="dot"></span>Gold Standard — full scientific trial with publication</button>
         <button class="opt" data-val="silver" data-score="3"><span class="dot"></span>Silver Standard — practical commercial evaluation</button>
@@ -280,7 +280,7 @@ body{font-family:'Mulish',sans-serif;background:#e8f5ec;color:var(--tx);min-heig
               <select id="nfas"><option value="">Select...</option><option>Yes</option><option>In progress</option><option>No</option><option>Not applicable</option></select>
               <div class="emsg">Required</div></div>
             <div class="fg" id="fg-tier"><label>Preferred project tier<span>*</span></label>
-              <select id="tier"><option value="">Select...</option><option value="Gold Standard – Cattle $2.46/head/day">Gold Standard – Cattle ($2.46/head/day)</option><option value="Silver Standard – Cattle $1.97/head/day">Silver Standard – Cattle ($1.97/head/day)</option><option value="Gold Standard – Sheep/Lamb $0.25/head/day">Gold Standard – Sheep/Lamb ($0.25/head/day)</option><option value="Silver Standard – Sheep/Lamb $0.20/head/day">Silver Standard – Sheep/Lamb ($0.20/head/day)</option><option value="Unsure">Unsure — need more info</option></select>
+              <select id="tier"><option value="">Select...</option><option value="Gold Standard – $2.46/head/day">Gold Standard – $2.46/head/day</option><option value="Silver Standard – $1.97/head/day">Silver Standard – $1.97/head/day</option><option value="Unsure">Unsure — need more info</option></select>
               <div class="emsg">Required</div></div>
           </div>
           <div class="stitle">Your Project Idea</div>
@@ -310,7 +310,7 @@ body{font-family:'Mulish',sans-serif;background:#e8f5ec;color:var(--tx);min-heig
             <div class="cc-name">Rob Sobey</div>
             <div class="cc-role">Entegra — Feedlot Industry Specialist</div>
             <div class="cc-links">
-              <a href="/cdn-cgi/l/email-protection#22504d400c5162474c56474550430c414d4f0c4357" class="cc-link">✉ <span class="__cf_email__" data-cfemail="9deff2ffb3eeddf8f3e9f8faeffcb3fef2f0b3fce8">[email&#160;protected]</span></a>
+              <a href="mailto:rob.s@entegra.com.au" class="cc-link">✉ rob.s@entegra.com.au</a>
               <a href="tel:+61483986590" class="cc-link">📞 0483 986 590</a>
             </div>
           </div>
@@ -328,7 +328,7 @@ body{font-family:'Mulish',sans-serif;background:#e8f5ec;color:var(--tx);min-heig
   <div class="foot">Based on MLA Feedlot RAAD Program guidelines · mla.com.au · Powered by Entegra</div>
 </div></div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 (function(){
   var FSPREE='xqeyrpek';
   var GSHEET='https://script.google.com/macros/s/AKfycbz4DSZzPIBEi8kFOFOFYhS7uNDj441MZVYu8ONOYDp_zurlZB_xRCcct6ZR75i3PK45/exec';
@@ -446,7 +446,7 @@ body{font-family:'Mulish',sans-serif;background:#e8f5ec;color:var(--tx);min-heig
     if(highlightMsg){hiTxt.textContent='💡 '+highlightMsg;hiBox.style.display='block';}
 
     // pre-fill
-    var tierMap={gold:'Gold Standard (Cattle $2.46 / Sheep $0.25 per head/day)',silver:'Silver Standard (Cattle $1.97 / Sheep $0.20 per head/day)',unsure:'Unsure'};
+    var tierMap={gold:'Gold Standard – $2.46/head/day',silver:'Silver Standard – $1.97/head/day',unsure:'Unsure'};
     var nfasMap={yes:'Yes',inprogress:'In progress',no:'No',na:'Not applicable'};
     var tv=tierMap[answers[9]]||'';if(tv)$('tier').value=tv;
     var nv=nfasMap[answers[1]]||'';if(nv)$('nfas').value=nv;
@@ -537,4 +537,13 @@ body{font-family:'Mulish',sans-serif;background:#e8f5ec;color:var(--tx);min-heig
     $('result').classList.remove('active');$('result').style.display='none';
     $('eoi-wrap').style.display='none';$('succ').classList.remove('active');
     $('eoi-inner').style.display='block';$('bsub').disabled=false;
-    $('btxt').textContent='
+    $('btxt').textContent='Register my interest';$('bspin').style.display='none';
+    $('nav').style.display='flex';$('bnx').disabled=true;$('bbk').style.visibility='hidden';
+    $('q0').classList.add('active');updProg();
+  }
+
+  updProg();
+})();
+</script>
+</body>
+</html>
